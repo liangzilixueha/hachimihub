@@ -1,0 +1,170 @@
+/* userinfo.css - 用户个人信息页面样式 */
+
+:root {
+    --theme-color: rgb(177, 119, 118);
+    --theme-color-dark: rgb(157, 99, 98);
+    --theme-color-light: rgb(197, 139, 138);
+    --theme-color-bg: rgba(177, 119, 118, 0.1);
+}
+
+/* 个人简介样式 */
+.bio-content {
+    line-height: 1.6;
+    word-break: break-word;
+    white-space: pre-line;
+}
+
+/* 统计数字动画 */
+@keyframes countUp {
+    from {
+        transform: translateY(10px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+#profile-video-count,
+#profile-like-count,
+#profile-view-count {
+    animation: countUp 0.8s ease-out forwards;
+}
+
+#profile-like-count {
+    animation-delay: 0.1s;
+}
+
+#profile-view-count {
+    animation-delay: 0.2s;
+}
+
+/* 加载中动画 */
+.spinner-container {
+    width: 40px;
+    height: 40px;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(177, 119, 118, 0.1);
+    border-radius: 50%;
+    border-top-color: var(--theme-color);
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* 视频卡片动画 */
+.video-grid {
+    animation: fadeIn 0.5s ease-out;
+}
+
+.video-card {
+    transition: all 0.3s ease;
+    animation: fadeUp 0.5s ease-out forwards;
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.video-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* 视频卡片的交错动画 */
+.video-card:nth-child(1) {
+    animation-delay: 0.1s;
+}
+.video-card:nth-child(2) {
+    animation-delay: 0.15s;
+}
+.video-card:nth-child(3) {
+    animation-delay: 0.2s;
+}
+.video-card:nth-child(4) {
+    animation-delay: 0.25s;
+}
+.video-card:nth-child(5) {
+    animation-delay: 0.3s;
+}
+.video-card:nth-child(6) {
+    animation-delay: 0.35s;
+}
+.video-card:nth-child(7) {
+    animation-delay: 0.4s;
+}
+.video-card:nth-child(8) {
+    animation-delay: 0.45s;
+}
+.video-card:nth-child(9) {
+    animation-delay: 0.5s;
+}
+.video-card:nth-child(10) {
+    animation-delay: 0.55s;
+}
+
+@keyframes fadeUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 排序按钮样式 */
+#sort-latest,
+#sort-popular {
+    transition: all 0.2s ease;
+}
+
+#sort-latest:hover,
+#sort-popular:hover {
+    transform: scale(1.05);
+}
+
+/* 分页样式 */
+#pagination button {
+    transition: all 0.2s ease;
+}
+
+#pagination button:hover:not(:disabled) {
+    background-color: var(--theme-color-bg);
+    border-color: var(--theme-color);
+}
+
+.page-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.page-number:hover {
+    background-color: var(--theme-color-bg);
+    border-color: var(--theme-color);
+}
+
+.page-number.active {
+    background-color: var(--theme-color);
+    color: white;
+    border-color: var(--theme-color);
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .grid-cols-5 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+} 

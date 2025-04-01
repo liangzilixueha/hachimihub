@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HachimiHub - 首页</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.css" />
+    <link rel="stylesheet" href="css/index.css">
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white shadow-md sticky top-0 z-10">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <!-- 网站Logo -->
+            <div class="flex items-center">
+                <img src="img/manbo.png" alt="HachimiHub" class="h-10 mr-2">
+                <h1 class="text-xl font-bold text-pink-600">HachimiHub</h1>
+            </div>
+            
+            <!-- 搜索框 -->
+            <div class="flex-1 mx-8">
+                <div class="relative">
+                    <input type="text" class="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent" placeholder="搜索视频...">
+                    <button class="absolute right-0 top-0 mt-2 mr-3 text-gray-400 hover:text-pink-500" aria-label="搜索">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 用户头像/登录 -->
+            <div class="user-profile">
+                <div id="user-avatar" class="user-avatar w-10 h-10 rounded-full bg-gray-200 cursor-pointer overflow-hidden">
+                    <!-- 默认显示默认头像，登录后替换为用户头像 -->
+                    <img src="https://via.placeholder.com/100?text=User" alt="用户头像" class="w-full h-full object-cover">
+                </div>
+                
+                <!-- 用户菜单 (JavaScript控制显示/隐藏) -->
+                <div id="user-menu" class="user-menu absolute mt-2 right-4 w-48 bg-white rounded-md shadow-lg py-1 hidden">
+                    <div id="not-logged-in" class="px-4 py-2 text-center">
+                        <a href="login.html" class="block px-4 py-2 text-sm text-white bg-pink-600 rounded-md hover:bg-pink-700">登录 / 注册</a>
+                    </div>
+                    <div id="logged-in" class="hidden">
+                        <div class="px-4 py-2 border-b">
+                            <div class="font-medium text-gray-900" id="username">用户名</div>
+                            <div class="text-xs text-gray-500" id="user-level">等级: 1</div>
+                        </div>
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">个人中心</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">我的收藏</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">历史记录</a>
+                        <a href="#" id="logout-btn" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">退出登录</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-6 relative">
+        <!-- 侧边公告栏 -->
+        <div class="fixed right-0 top-1/3 z-20">
+            <div class="sidebar-drawer bg-white shadow-lg rounded-l-lg overflow-hidden" id="sidebar-drawer">
+                <div class="sidebar-toggle bg-pink-600 text-white p-2 cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transform rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </div>
+                <div class="sidebar-content p-4 w-64">
+                    <div class="mb-4">
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">本站公告</h3>
+                        <div class="text-sm text-gray-600">
+                            <p class="mb-2">欢迎来到HachimiHub！这里是属于卡通爱好者的视频分享平台。</p>
+                            <p class="mb-2">最新活动：上传原创视频即可获得积分奖励！</p>
+                            <a href="#" class="text-pink-600 hover:underline">查看更多公告</a>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">联系站长</h3>
+                        <div class="text-sm text-gray-600">
+                            <p class="mb-2">遇到问题？有好的建议？</p>
+                            <p class="mb-2">Email: admin@hachimihub.com</p>
+                            <a href="#" class="text-pink-600 hover:underline">发送反馈</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 推荐置顶板块 - 轮播图 -->
+        <section class="mb-8">
+            <h2 class="text-xl font-bold mb-4 text-gray-800 flex items-center">
+                <span class="bg-pink-600 w-1 h-6 inline-block mr-2"></span> 推荐视频
+            </h2>
+            <div class="swiper-container featured-swiper rounded-lg overflow-hidden shadow-lg">
+                <div class="swiper-wrapper">
+                    <!-- 轮播项目 -->
+                    <div class="swiper-slide">
+                        <div class="relative">
+                            <img src="https://via.placeholder.com/1200x400" alt="推荐视频1" class="w-full h-64 object-cover">
+                            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
+                                <h3 class="text-white text-lg font-medium">超可爱卡通角色合集</h3>
+                                <div class="flex items-center mt-1">
+                                    <img src="https://via.placeholder.com/30" alt="用户头像" class="w-6 h-6 rounded-full mr-2">
+                                    <span class="text-white text-sm">动漫爱好者</span>
+                                    <span class="text-white text-xs ml-4">播放量: 12.5万</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="swiper-slide">
+                        <div class="relative">
+                            <img src="https://via.placeholder.com/1200x400?text=Slide+2" alt="推荐视频2" class="w-full h-64 object-cover">
+                            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
+                                <h3 class="text-white text-lg font-medium">精彩动画短片：小猫历险记</h3>
+                                <div class="flex items-center mt-1">
+                                    <img src="https://via.placeholder.com/30" alt="用户头像" class="w-6 h-6 rounded-full mr-2">
+                                    <span class="text-white text-sm">创意工作室</span>
+                                    <span class="text-white text-xs ml-4">播放量: 8.3万</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="swiper-slide">
+                        <div class="relative">
+                            <img src="https://via.placeholder.com/1200x400?text=Slide+3" alt="推荐视频3" class="w-full h-64 object-cover">
+                            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
+                                <h3 class="text-white text-lg font-medium">今日热门：可爱角色大赏</h3>
+                                <div class="flex items-center mt-1">
+                                    <img src="https://via.placeholder.com/30" alt="用户头像" class="w-6 h-6 rounded-full mr-2">
+                                    <span class="text-white text-sm">动画频道</span>
+                                    <span class="text-white text-xs ml-4">播放量: 15.7万</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 轮播导航按钮 -->
+                <div class="swiper-button-next text-white"></div>
+                <div class="swiper-button-prev text-white"></div>
+                <!-- 轮播分页器 -->
+                <div class="swiper-pagination"></div>
+            </div>
+        </section>
+
+        <!-- 纯良板块 -->
+        <section class="mb-8">
+            <h2 class="text-xl font-bold mb-4 text-gray-800 flex items-center">
+                <span class="bg-purple-600 w-1 h-6 inline-block mr-2"></span> 纯良推荐
+            </h2>
+            <div class="grid grid-cols-5 gap-4">
+                <!-- 视频卡片 -->
+                <div class="video-card bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow">
+                    <div class="relative">
+                        <img src="https://via.placeholder.com/300x200" alt="视频缩略图" class="w-full h-40 object-cover">
+                        <span class="absolute bottom-1 right-1 bg-black bg-opacity-70 text-white text-xs px-1 rounded">12:34</span>
+                    </div>
+                    <div class="p-3">
+                        <h3 class="text-sm font-medium text-gray-900 truncate">可爱小狗趣味动画合集</h3>
+                        <div class="flex items-center mt-2">
+                            <img src="https://via.placeholder.com/24" alt="用户头像" class="w-5 h-5 rounded-full mr-1">
+                            <span class="text-xs text-gray-600 truncate">宠物爱好者</span>
+                        </div>
+                        <div class="text-xs text-gray-500 mt-1">
+                            <span>5.2万播放</span>
+                            <span class="ml-2">3天前</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- 重复视频卡片 -->
+                <div class="video-card bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow">
+                    <div class="relative">
+                        <img src="https://via.placeholder.com/300x200?text=Video+2" alt="视频缩略图" class="w-full h-40 object-cover">
+                        <span class="absolute bottom-1 right-1 bg-black bg-opacity-70 text-white text-xs px-1 rounded">05:17</span>
+                    </div>
+                    <div class="p-3">
+                        <h3 class="text-sm font-medium text-gray-900 truncate">可爱兔子的日常生活</h3>
+                        <div class="flex items-center mt-2">
+                            <img src="https://via.placeholder.com/24" alt="用户头像" class="w-5 h-5 rounded-full mr-1">
+                            <span class="text-xs text-gray-600 truncate">兔子星球</span>
+                        </div>
+                        <div class="text-xs text-gray-500 mt-1">
+                            <span>3.7万播放</span>
+                            <span class="ml-2">1周前</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="video-card bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow">
+                    <div class="relative">
+                        <img src="https://via.placeholder.com/300x200?text=Video+3" alt="视频缩略图" class="w-full h-40 object-cover">
+                        <span class="absolute bottom-1 right-1 bg-black bg-opacity-70 text-white text-xs px-1 rounded">08:42</span>
+                    </div>
+                    <div class="p-3">
+                        <h3 class="text-sm font-medium text-gray-900 truncate">治愈系风景动画短片</h3>
+                        <div class="flex items-center mt-2">
+                            <img src="https://via.placeholder.com/24" alt="用户头像" class="w-5 h-5 rounded-full mr-1">
+                            <span class="text-xs text-gray-600 truncate">治愈之声</span>
+                        </div>
+                        <div class="text-xs text-gray-500 mt-1">
+                            <span>4.1万播放</span>
+                            <span class="ml-2">5天前</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="video-card bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow">
+                    <div class="relative">
+                        <img src="https://via.placeholder.com/300x200?text=Video+4" alt="视频缩略图" class="w-full h-40 object-cover">
+                        <span class="absolute bottom-1 right-1 bg-black bg-opacity-70 text-white text-xs px-1 rounded">15:30</span>
+                    </div>
+                    <div class="p-3">
+                        <h3 class="text-sm font-medium text-gray-900 truncate">纸艺小教程：可爱动物折纸</h3>
+                        <div class="flex items-center mt-2">
+                            <img src="https://via.placeholder.com/24" alt="用户头像" class="w-5 h-5 rounded-full mr-1">
+                            <span class="text-xs text-gray-600 truncate">手工艺术</span>
+                        </div>
+                        <div class="text-xs text-gray-500 mt-1">
+                            <span>2.9万播放</span>
+                            <span class="ml-2">2周前</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="video-card bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow">
+                    <div class="relative">
+                        <img src="https://via.placeholder.com/300x200?text=Video+5" alt="视频缩略图" class="w-full h-40 object-cover">
+                        <span class="absolute bottom-1 right-1 bg-black bg-opacity-70 text-white text-xs px-1 rounded">07:16</span>
+                    </div>
+                    <div class="p-3">
+                        <h3 class="text-sm font-medium text-gray-900 truncate">海底世界绘画过程</h3>
+                        <div class="flex items-center mt-2">
+                            <img src="https://via.placeholder.com/24" alt="用户头像" class="w-5 h-5 rounded-full mr-1">
+                            <span class="text-xs text-gray-600 truncate">艺术空间</span>
+                        </div>
+                        <div class="text-xs text-gray-500 mt-1">
+                            <span>3.3万播放</span>
+                            <span class="ml-2">4天前</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mt-4">
+                <button class="text-pink-600 hover:text-pink-700 font-medium">查看更多</button>
+            </div>
+        </section>
+
+        <!-- 热门板块 -->
+        <section class="mb-8">
+            <h2 class="text-xl font-bold mb-4 text-gray-800 flex items-center">
+                <span class="bg-red-600 w-1 h-6 inline-block mr-2"></span> 热门视频
+            </h2>
+            <div class="grid grid-cols-5 gap-4">
+                <!-- 视频卡片 -->
+                <div class="video-card bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow">
+                    <div class="relative">
+                        <img src="https://via.placeholder.com/300x200?text=Hot+1" alt="视频缩略图" class="w-full h-40 object-cover">
+                        <span class="absolute bottom-1 right-1 bg-black bg-opacity-70 text-white text-xs px-1 rounded">21:09</span>
+                    </div>
+                    <div class="p-3">
+                        <h3 class="text-sm font-medium text-gray-900 truncate">2023年最热门动画角色盘点</h3>
+                        <div class="flex items-center mt-2">
+                            <img src="https://via.placeholder.com/24" alt="用户头像" class="w-5 h-5 rounded-full mr-1">
+                            <span class="text-xs text-gray-600 truncate">动漫研究社</span>
+                        </div>
+                        <div class="text-xs text-gray-500 mt-1">
+                            <span>28.6万播放</span>
+                            <span class="ml-2">1天前</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- 重复视频卡片 -->
+                <div class="video-card bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow">
+                    <div class="relative">
+                        <img src="https://via.placeholder.com/300x200?text=Hot+2" alt="视频缩略图" class="w-full h-40 object-cover">
+                        <span class="absolute bottom-1 right-1 bg-black bg-opacity-70 text-white text-xs px-1 rounded">14:53</span>
+                    </div>
+                    <div class="p-3">
+                        <h3 class="text-sm font-medium text-gray-900 truncate">超人气角色大比拼</h3>
+                        <div class="flex items-center mt-2">
+                            <img src="https://via.placeholder.com/24" alt="用户头像" class="w-5 h-5 rounded-full mr-1">
+                            <span class="text-xs text-gray-600 truncate">动画迷</span>
+                        </div>
+                        <div class="text-xs text-gray-500 mt-1">
+                            <span>19.2万播放</span>
+                            <span class="ml-2">3天前</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="video-card bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow">
+                    <div class="relative">
+                        <img src="https://via.placeholder.com/300x200?text=Hot+3" alt="视频缩略图" class="w-full h-40 object-cover">
+                        <span class="absolute bottom-1 right-1 bg-black bg-opacity-70 text-white text-xs px-1 rounded">18:27</span>
+                    </div>
+                    <div class="p-3">
+                        <h3 class="text-sm font-medium text-gray-900 truncate">顶级动画特效制作解析</h3>
+                        <div class="flex items-center mt-2">
+                            <img src="https://via.placeholder.com/24" alt="用户头像" class="w-5 h-5 rounded-full mr-1">
+                            <span class="text-xs text-gray-600 truncate">动画工作室</span>
+                        </div>
+                        <div class="text-xs text-gray-500 mt-1">
+                            <span>14.8万播放</span>
+                            <span class="ml-2">1周前</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="video-card bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow">
+                    <div class="relative">
+                        <img src="https://via.placeholder.com/300x200?text=Hot+4" alt="视频缩略图" class="w-full h-40 object-cover">
+                        <span class="absolute bottom-1 right-1 bg-black bg-opacity-70 text-white text-xs px-1 rounded">09:45</span>
+                    </div>
+                    <div class="p-3">
+                        <h3 class="text-sm font-medium text-gray-900 truncate">经典角色重现：绘画教程</h3>
+                        <div class="flex items-center mt-2">
+                            <img src="https://via.placeholder.com/24" alt="用户头像" class="w-5 h-5 rounded-full mr-1">
+                            <span class="text-xs text-gray-600 truncate">艺术大师</span>
+                        </div>
+                        <div class="text-xs text-gray-500 mt-1">
+                            <span>12.3万播放</span>
+                            <span class="ml-2">2周前</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="video-card bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow">
+                    <div class="relative">
+                        <img src="https://via.placeholder.com/300x200?text=Hot+5" alt="视频缩略图" class="w-full h-40 object-cover">
+                        <span class="absolute bottom-1 right-1 bg-black bg-opacity-70 text-white text-xs px-1 rounded">25:31</span>
+                    </div>
+                    <div class="p-3">
+                        <h3 class="text-sm font-medium text-gray-900 truncate">最受欢迎的配音演员采访</h3>
+                        <div class="flex items-center mt-2">
+                            <img src="https://via.placeholder.com/24" alt="用户头像" class="w-5 h-5 rounded-full mr-1">
+                            <span class="text-xs text-gray-600 truncate">幕后探索</span>
+                        </div>
+                        <div class="text-xs text-gray-500 mt-1">
+                            <span>16.7万播放</span>
+                            <span class="ml-2">5天前</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mt-4">
+                <button class="text-pink-600 hover:text-pink-700 font-medium">查看更多</button>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-wrap justify-between">
+                <div class="w-full md:w-1/3 mb-6 md:mb-0">
+                    <div class="flex items-center mb-4">
+                        <img src="img/manbo.png" alt="HachimiHub" class="h-8 mr-2">
+                        <h2 class="text-xl font-bold">HachimiHub</h2>
+                    </div>
+                    <p class="text-gray-400 text-sm">HachimiHub是一个专注于卡通和动画视频分享的平台，为动漫爱好者提供优质内容。</p>
+                </div>
+                <div class="w-full md:w-1/3 mb-6 md:mb-0">
+                    <h3 class="text-lg font-medium mb-4">快速链接</h3>
+                    <ul class="text-gray-400">
+                        <li class="mb-2"><a href="#" class="hover:text-white">首页</a></li>
+                        <li class="mb-2"><a href="#" class="hover:text-white">热门视频</a></li>
+                        <li class="mb-2"><a href="#" class="hover:text-white">纯良频道</a></li>
+                        <li class="mb-2"><a href="#" class="hover:text-white">关于我们</a></li>
+                    </ul>
+                </div>
+                <div class="w-full md:w-1/3">
+                    <h3 class="text-lg font-medium mb-4">联系我们</h3>
+                    <ul class="text-gray-400">
+                        <li class="mb-2">Email: contact@hachimihub.com</li>
+                        <li class="mb-2">微博: @HachimiHub官方</li>
+                        <li class="mb-2">QQ群: 12345678</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-6 text-center text-gray-400 text-sm">
+                <p>&copy; 2023 HachimiHub. 保留所有权利。</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
+    <!-- 先加载API文件，再加载主逻辑文件 -->
+    <script src="js/request/user.js"></script>
+    <script src="js/request/video.js"></script>
+    <script src="js/index.js"></script>
+</body>
+</html> 

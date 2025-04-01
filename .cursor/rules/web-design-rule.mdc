@@ -1,0 +1,20 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+# Your rule content
+
+- 网站的名字叫做：hachimihub,网站的吉祥物是/img/manbo.png
+- 你的网页应该由html+js+css组成
+- 你应该尝试去使用第三方ui库让网页界面变的更加好看
+- 网站的设计风格为桥俏皮，卡通，可爱，但不不要太花哨 tailwind css风格
+- 这是一个视频分发网站
+- 所有的css放在/css文件夹下
+- 所有的js放在/js文件夹下
+- 命名要对应
+- 涉及网络请求的放在/js/request下，以日后方便我后端的开发
+- 网站的主题色是rgb(177,119,118)
+- 每一个用户的都会有一个独一无二的id
+- 每一个视频都会有一个独一无二的id

@@ -1,0 +1,79 @@
+/* search.css - 搜索页面样式 */
+
+/* 搜索关键词高亮 */
+#search-keyword {
+    font-weight: 600;
+}
+
+/* 加载中动画 */
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 3px solid rgba(177, 119, 118, 0.2);
+    border-top-color: var(--theme-color);
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* 分页按钮样式 */
+#page-numbers button {
+    min-width: 40px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #e5e7eb;
+    background-color: white;
+    color: #374151;
+}
+
+#page-numbers button:hover {
+    background-color: #f9fafb;
+}
+
+#page-numbers button.active {
+    background-color: var(--theme-color);
+    color: white;
+    border-color: var(--theme-color);
+}
+
+#page-numbers button:not(:last-child) {
+    border-right: none;
+}
+
+/* 搜索结果卡片动画 */
+#result-container .video-card {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.3s forwards;
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 为不同的卡片设置不同的动画延迟，创建错落有致的出现效果 */
+#result-container .video-card:nth-child(1) { animation-delay: 0.05s; }
+#result-container .video-card:nth-child(2) { animation-delay: 0.1s; }
+#result-container .video-card:nth-child(3) { animation-delay: 0.15s; }
+#result-container .video-card:nth-child(4) { animation-delay: 0.2s; }
+#result-container .video-card:nth-child(5) { animation-delay: 0.25s; }
+#result-container .video-card:nth-child(6) { animation-delay: 0.3s; }
+#result-container .video-card:nth-child(7) { animation-delay: 0.35s; }
+#result-container .video-card:nth-child(8) { animation-delay: 0.4s; }
+#result-container .video-card:nth-child(9) { animation-delay: 0.45s; }
+#result-container .video-card:nth-child(10) { animation-delay: 0.5s; }
+
+/* 响应式调整 - 重用index.css中的网格响应式设置 */ 

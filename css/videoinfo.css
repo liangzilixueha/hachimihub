@@ -1,0 +1,330 @@
+/* videoinfo.css - 视频详情页样式 */
+
+:root {
+    --theme-color: rgb(177, 119, 118);
+    --theme-color-dark: rgb(157, 99, 98);
+    --theme-color-light: rgb(197, 139, 138);
+}
+
+/* 加载动画 */
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    border-top-color: var(--theme-color);
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* 视频播放器容器 */
+#video-player-container {
+    background-color: #000;
+    position: relative;
+    width: 100%;
+    height: 0px;
+    padding-bottom: 60%;
+    overflow: hidden;
+}
+
+#video-player {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* ArtPlayer相关样式 */
+.art-video-player {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    font-family: inherit !important;
+    z-index: 20 !important;
+}
+
+.art-video-player .art-controls {
+    z-index: 30 !important;
+}
+
+.art-video-player .art-video {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+}
+
+/* 视频加载状态 */
+#video-loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 40;
+}
+
+#video-loading.hidden {
+    display: none !important;
+}
+
+/* 点赞按钮 */
+#like-button.liked {
+    color: var(--theme-color);
+    fill: var(--theme-color);
+}
+
+#like-button.liked svg {
+    fill: var(--theme-color);
+}
+
+/* 关注按钮 */
+#follow-button.following {
+    background-color: #f3f4f6;
+    color: #6b7280;
+}
+
+/* 评论区 */
+.comment-item {
+    padding: 1rem;
+    transition: background-color 0.2s;
+}
+
+.comment-item:hover {
+    background-color: #f9fafb;
+}
+
+.comment-avatar {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 9999px;
+    object-fit: cover;
+}
+
+.comment-content {
+    margin-left: 0.75rem;
+    flex-grow: 1;
+}
+
+.comment-username {
+    font-weight: 500;
+    font-size: 0.875rem;
+    color: #111827;
+}
+
+.comment-time {
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-left: 0.5rem;
+}
+
+.comment-text {
+    margin-top: 0.25rem;
+    font-size: 0.875rem;
+    color: #374151;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* 评论分页按钮 */
+.pagination-btn {
+    padding: 0.5rem 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.375rem;
+    background-color: #ffffff;
+    color: #374151;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+}
+
+.pagination-btn:hover:not(:disabled) {
+    background-color: #f9fafb;
+    color: var(--theme-color);
+}
+
+.pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.page-number {
+    margin: 0 0.25rem;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.page-number:hover {
+    background-color: #f3f4f6;
+}
+
+.page-number.active {
+    background-color: var(--theme-color);
+    color: white;
+}
+
+/* 推荐视频 */
+.recommended-video {
+    padding: 0.75rem;
+    display: flex;
+    transition: background-color 0.2s;
+}
+
+.recommended-video:hover {
+    background-color: #f9fafb;
+}
+
+.recommended-video-thumbnail {
+    position: relative;
+    width: 6rem;
+    height: 3.5rem;
+    flex-shrink: 0;
+    border-radius: 0.25rem;
+    overflow: hidden;
+}
+
+.recommended-video-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.recommended-video-duration {
+    position: absolute;
+    bottom: 0.25rem;
+    right: 0.25rem;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    font-size: 0.625rem;
+    padding: 0 0.25rem;
+    border-radius: 0.125rem;
+}
+
+.recommended-video-info {
+    margin-left: 0.75rem;
+    flex-grow: 1;
+}
+
+.recommended-video-title {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #111827;
+    line-height: 1.25;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.recommended-video-uploader {
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-top: 0.25rem;
+}
+
+.recommended-video-counts {
+    display: flex;
+    align-items: center;
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-top: 0.25rem;
+}
+
+.recommended-video-counts span:not(:last-child) {
+    margin-right: 0.75rem;
+}
+
+/* 媒体查询 - 响应式设计 */
+@media (max-width: 640px) {
+    .recommended-video-thumbnail {
+        width: 5rem;
+        height: 3rem;
+    }
+}
+
+/* 视频信息区域淡入动画 */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+#video-title, 
+#uploader-name,
+#upload-time,
+#view-count,
+#like-count,
+#video-description {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* 评论提交按钮禁用状态 */
+#comment-submit:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* 通知样式 */
+.notification {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.375rem;
+    z-index: 100;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    animation: slideIn 0.3s ease-out;
+}
+
+.notification-success {
+    background-color: #10b981;
+    color: white;
+}
+
+.notification-error {
+    background-color: #ef4444;
+    color: white;
+}
+
+.notification-info {
+    background-color: #3b82f6;
+    color: white;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+/* 自定义滚动条 */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--theme-color-light);
+} 

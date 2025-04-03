@@ -63,15 +63,8 @@ let commentTotalPages = 0; // 评论总页数
  */
 async function init() {
     // 从URL获取视频ID
-    const urlParams = new URLSearchParams(window.location.search);
-    videoId = urlParams.get('id');
-    
-    if (!videoId) {
-        showNotification('视频ID不能为空', 'error');
-        // 重定向到首页
-        window.location.href = '/index.html';
-        return;
-    }
+    const urlParams = new URLSearchParams(window.location.pathname.split('/').pop());
+    videoId = urlParams.get('id') || window.location.pathname.split('/').pop().replace('hjm', '');
     
     // 检查用户登录状态
     checkLoginStatus();
@@ -620,7 +613,7 @@ function renderRecommendedVideos(videos) {
     
     videos.forEach(video => {
         const videoItem = document.createElement('a');
-        videoItem.href = `/videoinfo.html?id=${video.videoId}`;
+        videoItem.href = `/video/hjm${video.videoId}`;
         videoItem.className = 'recommended-video';
         
         // 格式化时间和播放量

@@ -201,7 +201,7 @@ function createVideoCard(video) {
     
     // 添加点击事件，跳转到视频页面
     card.addEventListener('click', () => {
-        window.location.href = `/video.html?id=${video.id}`;
+        window.location.href = `/video/hjm${video.id}`;
     });
     
     return card;

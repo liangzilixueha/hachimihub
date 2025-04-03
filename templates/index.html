@@ -6,7 +6,7 @@
     <title>HachimiHub - 首页</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.css" />
-    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
 </head>
 <body class="bg-gray-100 min-h-screen">
     <!-- 顶部导航栏 -->
@@ -14,7 +14,7 @@
         <div class="container mx-auto px-4 py-3 flex items-center justify-between">
             <!-- 网站Logo -->
             <div class="flex items-center">
-                <img src="img/manbo.png" alt="HachimiHub" class="h-10 mr-2">
+                <img src="{{ url_for('static', filename='img/manbo.png') }}" alt="HachimiHub" class="h-10 mr-2">
                 <h1 class="text-xl font-bold text-pink-600">HachimiHub</h1>
             </div>
             
@@ -40,7 +40,7 @@
                 <!-- 用户菜单 (JavaScript控制显示/隐藏) -->
                 <div id="user-menu" class="user-menu absolute mt-2 right-4 w-48 bg-white rounded-md shadow-lg py-1 hidden">
                     <div id="not-logged-in" class="px-4 py-2 text-center">
-                        <a href="login.html" class="block px-4 py-2 text-sm text-white bg-pink-600 rounded-md hover:bg-pink-700">登录 / 注册</a>
+                        <a href="{{ url_for('login') }}" class="block px-4 py-2 text-sm text-white bg-pink-600 rounded-md hover:bg-pink-700">登录 / 注册</a>
                     </div>
                     <div id="logged-in" class="hidden">
                         <div class="px-4 py-2 border-b">
@@ -347,7 +347,7 @@
             <div class="flex flex-wrap justify-between">
                 <div class="w-full md:w-1/3 mb-6 md:mb-0">
                     <div class="flex items-center mb-4">
-                        <img src="img/manbo.png" alt="HachimiHub" class="h-8 mr-2">
+                        <img src="{{ url_for('static', filename='img/manbo.png') }}" alt="HachimiHub" class="h-8 mr-2">
                         <h2 class="text-xl font-bold">HachimiHub</h2>
                     </div>
                     <p class="text-gray-400 text-sm">HachimiHub是一个专注于卡通和动画视频分享的平台，为动漫爱好者提供优质内容。</p>
@@ -379,8 +379,8 @@
     <!-- JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
     <!-- 先加载API文件，再加载主逻辑文件 -->
-    <script src="js/request/user.js"></script>
-    <script src="js/request/video.js"></script>
-    <script src="js/index.js"></script>
+    <script src="{{ url_for('static', filename='js/request/user.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/request/video.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/index.js') }}"></script>
 </body>
 </html> 

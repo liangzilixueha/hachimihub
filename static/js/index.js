@@ -166,7 +166,7 @@ function handleSearch() {
     const keyword = searchInput.value.trim();
     if (keyword) {
         // 跳转到搜索结果页面
-        window.location.href = `/search.html?keyword=${encodeURIComponent(keyword)}`;
+        window.location.href = `/search?keyword=${encodeURIComponent(keyword)}`;
     }
 }
 

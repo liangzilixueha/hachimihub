@@ -106,7 +106,7 @@ function getUserIdFromUrl() {
  * 检查用户登录状态
  */
 function checkLoginStatus() {
-    const currentUser = window.userAPI.getCurrentUser();
+    const currentUser = window.authAPI.getCurrentUser();
     
     if (currentUser) {
         // 用户已登录
@@ -274,7 +274,7 @@ function renderVideoList(videos) {
         
         // 添加点击事件，跳转到视频详情页
         videoCard.addEventListener('click', () => {
-            window.location.href = `/video.html?id=${video.videoId}`;
+            window.location.href = `/video/hjm${video.videoId}`;
         });
         
         userVideos.appendChild(videoCard);

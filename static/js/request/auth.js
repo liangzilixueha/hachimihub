@@ -6,32 +6,6 @@
 const API_BASE_URL = '/api';
 
 /**
- * 获取验证码
- * @param {string} type - 验证码类型：'login' 或 'register'
- * @returns {Promise<Object>} - 返回包含验证码图片URL或Base64的对象
- */
-async function getCaptcha(type) {
-    try {
-        const response = await fetch(`${API_BASE_URL}/captcha?type=${type}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            credentials: 'include' // 包含Cookie
-        });
-
-        if (!response.ok) {
-            throw new Error('获取验证码失败');
-        }
-
-        return await response.json();
-    } catch (error) {
-        console.error('验证码获取错误:', error);
-        throw error;
-    }
-}
-
-/**
  * 登录请求
  * @param {Object} loginData - 登录表单数据
  * @param {string} loginData.account - 账号
@@ -97,9 +71,47 @@ async function register(registerData) {
     }
 }
 
+/**
+ * 检查用户是否已登录
+ * @returns {boolean} 是否已登录
+ */
+function isLoggedIn() {
+    console.log('hachimitoken')
+    return !!localStorage.getItem('hachimitoken');
+}
+
+/**
+ * 获取当前登录用户信息
+ * @returns {Object|null} 用户信息，未登录返回null
+ */
+function getCurrentUser() {
+    if (!isLoggedIn()) {
+        return null;
+    }
+    return {
+        token: localStorage.getItem('hachimitoken'),
+        user_id: localStorage.getItem('user_id'),
+        username: localStorage.getItem('username')
+    };
+}
+
+/**
+ * 登出函数
+ * @returns {boolean} 返回成功退出
+ * 清除本地存储的用户信息和token
+ */
+function logout() {
+    localStorage.removeItem('hachimitoken');
+    localStorage.removeItem('user_id');
+    localStorage.removeItem('username');
+    return true
+}
+
 // 导出为全局变量，方便在浏览器环境中使用
 window.authAPI = {
-    getCaptcha,
     login,
-    register
+    logout,
+    register,
+    isLoggedIn,
+    getCurrentUser
 }; 

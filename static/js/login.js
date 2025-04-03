@@ -31,16 +31,10 @@ function init() {
     loginTab.addEventListener('click', () => switchTab('login'));
     registerTab.addEventListener('click', () => switchTab('register'));
     
-    // 验证码点击刷新
-    loginCaptchaImg.addEventListener('click', () => refreshCaptcha('login'));
-    registerCaptchaImg.addEventListener('click', () => refreshCaptcha('register'));
-    
     // 表单提交
     loginForm.querySelector('form').addEventListener('submit', handleLoginSubmit);
     registerForm.querySelector('form').addEventListener('submit', handleRegisterSubmit);
     
-    // 初始加载验证码
-    refreshCaptcha('login');
 }
 
 /**
@@ -62,9 +56,7 @@ function switchTab(tab) {
         // 显示登录表单，隐藏注册表单
         loginForm.classList.remove('hidden');
         registerForm.classList.add('hidden');
-        
-        // 刷新验证码
-        refreshCaptcha('login');
+
     } else {
         // 切换到注册标签
         registerTab.classList.add('text-pink-600', 'border-b-2', 'border-pink-600');
@@ -76,45 +68,9 @@ function switchTab(tab) {
         registerForm.classList.remove('hidden');
         loginForm.classList.add('hidden');
         
-        // 刷新验证码
-        refreshCaptcha('register');
     }
 }
 
-/**
- * 刷新验证码
- * @param {string} type - 验证码类型：'login' 或 'register'
- */
-async function refreshCaptcha(type) {
-    const captchaImg = type === 'login' ? loginCaptchaImg : registerCaptchaImg;
-    
-    try {
-        // 显示加载状态
-        captchaImg.textContent = '加载中...';
-        
-        // 获取新验证码
-        const captchaData = await window.authAPI.getCaptcha(type);
-        
-        // 更新验证码图片
-        if (captchaData.captchaBase64) {
-            // 如果后端返回Base64图片
-            captchaImg.innerHTML = `<img src="${captchaData.captchaBase64}" alt="验证码" class="w-full h-full object-cover">`;
-        } else if (captchaData.captchaUrl) {
-            // 如果后端返回图片URL
-            captchaImg.innerHTML = `<img src="${captchaData.captchaUrl}" alt="验证码" class="w-full h-full object-cover">`;
-        } else {
-            // 如果是其他形式的验证码（如文本）
-            captchaImg.textContent = captchaData.captchaText || '验证码';
-        }
-    } catch (error) {
-        // 显示错误状态
-        captchaImg.textContent = '获取失败';
-        console.error('刷新验证码失败:', error);
-        
-        // 3秒后自动重试
-        setTimeout(() => refreshCaptcha(type), 3000);
-    }
-}
 
 /**
  * 处理登录表单提交
@@ -126,13 +82,12 @@ async function handleLoginSubmit(event) {
     // 获取表单数据
     const loginData = {
         account: loginAccountInput.value.trim(),
-        password: loginPasswordInput.value,
-        captcha: loginCaptchaInput.value.trim()
+        password: loginPasswordInput.value
     };
     
     // 简单验证
     if (!loginData.account) {
-        showError('请输入账号');
+        showError('请输入邮箱');
         return;
     }
     
@@ -140,11 +95,7 @@ async function handleLoginSubmit(event) {
         showError('请输入密码');
         return;
     }
-    
-    if (!loginData.captcha) {
-        showError('请输入验证码');
-        return;
-    }
+
     
     try {
         // 禁用提交按钮，显示加载状态
@@ -155,23 +106,18 @@ async function handleLoginSubmit(event) {
         
         // 发送登录请求
         const result = await window.authAPI.login(loginData);
-        
         // 登录成功
         showSuccess(result.message || '登录成功');
-        
+        localStorage.setItem('hachimitoken', result.data.token);
+        localStorage.setItem('user_id', result.data.user_id);
+        localStorage.setItem('username', result.data.username);
         // 跳转到首页或其他页面
         setTimeout(() => {
-            window.location.href = '/index.html';
-        }, 1500);
+            window.location.href = '/';
+        }, 500);
     } catch (error) {
         // 显示错误信息
         showError(error.message || '登录失败，请重试');
-        
-        // 刷新验证码
-        refreshCaptcha('login');
-        
-        // 清空验证码输入框
-        loginCaptchaInput.value = '';
     } finally {
         // 恢复提交按钮
         const submitButton = loginForm.querySelector('button[type="submit"]');
@@ -189,15 +135,14 @@ async function handleRegisterSubmit(event) {
     
     // 获取表单数据
     const registerData = {
-        account: registerAccountInput.value.trim(),
+        email: registerAccountInput.value.trim(),
         username: registerUsernameInput.value.trim(),
         password: registerPasswordInput.value,
-        confirmPassword: registerConfirmPasswordInput.value,
-        captcha: registerCaptchaInput.value.trim()
+        confirmPassword: registerConfirmPasswordInput.value
     };
     
     // 简单验证
-    if (!registerData.account) {
+    if (!registerData.email) {
         showError('请输入账号');
         return;
     }
@@ -214,11 +159,6 @@ async function handleRegisterSubmit(event) {
     
     if (registerData.password !== registerData.confirmPassword) {
         showError('两次输入的密码不一致');
-        return;
-    }
-    
-    if (!registerData.captcha) {
-        showError('请输入验证码');
         return;
     }
     
@@ -245,12 +185,6 @@ async function handleRegisterSubmit(event) {
     } catch (error) {
         // 显示错误信息
         showError(error.message || '注册失败，请重试');
-        
-        // 刷新验证码
-        refreshCaptcha('register');
-        
-        // 清空验证码输入框
-        registerCaptchaInput.value = '';
     } finally {
         // 恢复提交按钮
         const submitButton = registerForm.querySelector('button[type="submit"]');

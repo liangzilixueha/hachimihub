@@ -60,6 +60,7 @@ function initEventListeners() {
     document.addEventListener('click', (event) => {
         if (!userAvatar.contains(event.target) && !userMenu.contains(event.target)) {
             userMenu.classList.remove('active');
+            userMenu.classList.remove('hidden');
         }
     });
     
@@ -86,9 +87,9 @@ function initEventListeners() {
 // 检查用户登录状态
 async function checkUserLoginStatus() {
     try {
-        const userInfo = await window.userAPI.getUserInfo();
-        
-        if (userInfo && userInfo.userId) {
+        const userInfo = await window.authAPI.isLoggedIn();
+        console.log(userInfo)
+        if (userInfo) {
             // 用户已登录
             updateUserUI(userInfo);
         } else {
@@ -133,8 +134,13 @@ function showNotLoggedInUI() {
 
 // 切换用户菜单显示/隐藏
 function toggleUserMenu() {
-    userMenu.classList.toggle('active');
-    userMenu.classList.toggle('hidden');
+    if (userMenu.classList.contains('active')) {
+        userMenu.classList.remove('active');
+        userMenu.classList.add('hidden');
+    } else {
+        userMenu.classList.remove('hidden');
+        userMenu.classList.add('active');
+    }
 }
 
 // 处理退出登录
@@ -142,7 +148,7 @@ async function handleLogout(event) {
     event.preventDefault();
     
     try {
-        const success = await window.userAPI.logout();
+        const success = await window.authAPI.logout();
         
         if (success) {
             // 退出成功，更新UI

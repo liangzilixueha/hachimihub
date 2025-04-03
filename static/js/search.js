@@ -189,8 +189,10 @@ function createVideoCard(video) {
         <div class="p-3">
             <h3 class="text-sm font-medium text-gray-900 truncate">${video.title}</h3>
             <div class="flex items-center mt-2">
-                <img src="${video.user?.avatar || 'https://via.placeholder.com/24'}" alt="${video.user?.username || '用户'}" class="w-5 h-5 rounded-full mr-1">
-                <span class="text-xs text-gray-600 truncate">${video.user?.username || '未知用户'}</span>
+                <a href="/user/${video.user?.userId || 'unknown'}" class="flex items-center">
+                    <img src="${video.user?.avatar || 'https://via.placeholder.com/24'}" alt="${video.user?.username || '用户'}" class="w-5 h-5 rounded-full mr-1">
+                    <span class="text-xs text-gray-600 truncate">${video.user?.username || '未知用户'}</span>
+                </a>
             </div>
             <div class="text-xs text-gray-500 mt-1">
                 <span>${viewCount}播放</span>

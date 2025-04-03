@@ -88,7 +88,7 @@ async function init() {
  * 检查用户登录状态
  */
 function checkLoginStatus() {
-    const currentUser = window.userAPI.getCurrentUser();
+    const currentUser = window.authAPI.getCurrentUser();
     
     // if (!currentUser) {
     //     // 未登录，跳转到登录页面
@@ -227,7 +227,7 @@ function switchTab(tab) {
 async function loadUserProfile() {
     try {
         // 获取当前用户
-        const currentUser = window.userAPI.getCurrentUser();
+        const currentUser = window.authAPI.getCurrentUser();
         if (!currentUser) return;
         
         // 获取用户详细信息

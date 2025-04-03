@@ -91,7 +91,7 @@ async function init() {
  * 检查用户登录状态
  */
 function checkLoginStatus() {
-    const currentUser = window.userAPI.getCurrentUser();
+    const currentUser = window.authAPI.getCurrentUser();
     
     if (currentUser) {
         // 已登录，显示用户信息
@@ -311,7 +311,7 @@ async function loadVideoInfo() {
         videoTitle.textContent = videoInfo.title;
         uploaderAvatar.src = videoInfo.uploader.avatar;
         uploaderName.textContent = videoInfo.uploader.username;
-        uploaderLink.href = `/userinfo.html?id=${videoInfo.uploader.userId}`;
+        uploaderLink.href = `/user/${videoInfo.uploader.userId}`;
         uploaderLink.dataset.userId = videoInfo.uploader.userId;
         likeCount.textContent = formatCount(videoInfo.likeCount);
         viewCount.textContent = formatCount(videoInfo.viewCount);

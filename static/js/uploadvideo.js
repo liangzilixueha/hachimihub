@@ -91,8 +91,8 @@ async function init() {
  * 检查用户登录状态
  */
 function checkLoginStatus() {
-    const currentUser = window.userAPI ? window.userAPI.getCurrentUser() : null;
-    if (true) {
+    const currentUser = window.authAPI ? window.authAPI.getCurrentUser() : null;
+    if (currentUser) {
         // 已登录，显示用户信息
         loggedIn.classList.remove('hidden');
         notLoggedIn.classList.add('hidden');
@@ -287,8 +287,8 @@ function toggleUserMenu() {
  */
 async function handleLogout() {
     try {
-        if (window.userAPI) {
-            await window.userAPI.logout();
+        if (window.authAPI) {
+            await window.authAPI.logout();
         }
         window.location.href = 'login.html';
     } catch (error) {

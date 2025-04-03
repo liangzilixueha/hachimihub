@@ -93,7 +93,7 @@ window.commentAPI = {
         const { videoId, content } = commentData;
         
         // 检查用户是否登录
-        const currentUser = window.userAPI.getCurrentUser();
+        const currentUser = window.authAPI.getCurrentUser();
         if (!currentUser) {
             throw new Error('请先登录');
         }
@@ -136,7 +136,7 @@ window.commentAPI = {
      */
     async likeComment(commentId) {
         // 检查用户是否登录
-        const currentUser = window.userAPI.getCurrentUser();
+        const currentUser = window.authAPI.getCurrentUser();
         if (!currentUser) {
             throw new Error('请先登录');
         }

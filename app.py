@@ -1,5 +1,6 @@
 from flask import Flask, render_template, send_from_directory, request
 import os
+from api.user import user_bp
 
 app = Flask(__name__, 
     static_folder='static',
@@ -8,6 +9,8 @@ app = Flask(__name__,
 
 # 设置密钥
 app.config['SECRET_KEY'] = 'your-secret-key-here'
+
+app.register_blueprint(user_bp, url_prefix='/api')
 
 @app.route('/')
 def index():
@@ -22,9 +25,9 @@ def videoinfo(id):
     # 当访问到形如/video/hjm{id}时，会返回videoinfo.html，同时将{id}作为参数传递给前端
     return render_template('videoinfo.html', video_id=id)
 
-@app.route('/userinfo')
-def userinfo():
-    return render_template('userinfo.html')
+@app.route('/user/<id>')
+def userinfo(id):
+    return render_template('userinfo.html', user_id=id)
 
 @app.route('/edit')
 def edit():

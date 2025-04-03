@@ -74,7 +74,7 @@ window.videoAPI = {
             const { page = 1, pageSize = 10, sort = 'latest' } = options;
             
             // 获取当前用户
-            const currentUser = window.userAPI.getCurrentUser();
+            const currentUser = window.authAPI.getCurrentUser();
             if (!currentUser) {
                 throw new Error('未登录');
             }
@@ -143,7 +143,7 @@ window.videoAPI = {
     async updateVideoCover(videoId, coverFile) {
         try {
             // 获取当前用户
-            const currentUser = window.userAPI.getCurrentUser();
+            const currentUser = window.authAPI.getCurrentUser();
             if (!currentUser) {
                 throw new Error('未登录');
             }
@@ -190,7 +190,7 @@ window.videoAPI = {
     async deleteVideo(videoId) {
         try {
             // 获取当前用户
-            const currentUser = window.userAPI.getCurrentUser();
+            const currentUser = window.authAPI.getCurrentUser();
             if (!currentUser) {
                 throw new Error('未登录');
             }
@@ -226,7 +226,7 @@ window.videoAPI = {
         await new Promise(resolve => setTimeout(resolve, 800));
         
         // 获取当前用户
-        const currentUser = window.userAPI.getCurrentUser();
+        const currentUser = window.authAPI.getCurrentUser();
         const isLoggedIn = !!currentUser;
         
         // 模拟API响应数据
@@ -260,7 +260,7 @@ window.videoAPI = {
      */
     async likeVideo(videoId) {
         // 检查用户是否登录
-        const currentUser = window.userAPI.getCurrentUser();
+        const currentUser = window.authAPI.getCurrentUser();
         if (!currentUser) {
             throw new Error('请先登录');
         }

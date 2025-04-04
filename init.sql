@@ -33,6 +33,7 @@ CREATE TABLE IF NOT EXISTS videoinfo (
     bio TEXT COMMENT '视频描述',
     video_url VARCHAR(255) NOT NULL COMMENT '视频文件URL',
     cover_url VARCHAR(255) NOT NULL COMMENT '封面图片URL',
+    duration INT DEFAULT 0 COMMENT '视频时长(秒)',
     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     love INT DEFAULT 0 COMMENT '喜欢数量',
     watch INT DEFAULT 0 COMMENT '观看次数',

@@ -185,7 +185,7 @@ async function loadUserProfile(userId) {
         
         // 更新用户简介
         profileBio.textContent = userData.bio || '这个人很懒，还没有填写个人简介...';
-        
+
         // 更新统计数据，带有计数动画效果
         setTimeout(() => {
             countUp(profileVideoCount, userData.stats.videoCount);
@@ -212,12 +212,11 @@ async function loadUserVideos(userId) {
         pagination.classList.add('hidden');
         
         // 获取用户视频列表
-        const result = await getUserVideos(userId, {
+        const result = await window.userAPI.getUserPubilcVideos(userId, {
             page: currentPage,
             pageSize,
             sort: sortBy
         });
-        
         // 更新状态变量
         totalPages = result.pagination.totalPages;
         totalVideos = result.pagination.totalVideos;
@@ -253,18 +252,18 @@ function renderVideoList(videos) {
     videos.forEach(video => {
         const videoCard = document.createElement('div');
         videoCard.className = 'video-card bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300';
-        
+        console.log(video)
         // 格式化时间
-        const uploadTimeFormatted = formatTimeAgo(new Date(video.uploadTime));
-        
+        const uploadTimeFormatted = formatTimeAgo(new Date(video.createTime));
+        const 视频时常=formatDuration(video.duration)
         // 格式化播放量
-        const viewCountFormatted = formatCount(video.viewCount);
+        const viewCountFormatted = formatCount(video.watch);
         
         videoCard.innerHTML = `
             <div class="relative">
                 <img src="${video.coverUrl}" alt="${video.title}" class="w-full h-32 object-cover">
                 <span class="absolute bottom-1 right-1 bg-black bg-opacity-70 text-white text-xs px-1 rounded">
-                    ${video.duration}
+                    ${视频时常}
                 </span>
             </div>
             <div class="p-3">
@@ -278,7 +277,7 @@ function renderVideoList(videos) {
         
         // 添加点击事件，跳转到视频详情页
         videoCard.addEventListener('click', () => {
-            window.location.href = `/video/hjm${video.videoId}`;
+            window.location.href = `/video/hjm${video.id}`;
         });
         
         userVideos.appendChild(videoCard);
@@ -449,7 +448,7 @@ function formatCount(count) {
     } else if (count >= 10000) {
         return (count / 10000).toFixed(1) + '万';
     } else {
-        return count.toString();
+        return count;
     }
 }
 
@@ -479,6 +478,35 @@ function formatTimeAgo(date) {
     } else {
         const years = Math.floor(diffInSeconds / 31536000);
         return `${years}年前`;
+    }
+}
+
+/**
+ * 将秒数格式化为"时:分:秒"格式
+ * @param {number} seconds - 总秒数
+ * @returns {string} 格式化后的时间字符串，如"01:30"或"01:30:45"
+ */
+function formatDuration(seconds) {
+    if (!seconds && seconds !== 0) return '00:00';
+    
+    // 确保输入是数字
+    seconds = parseInt(seconds, 10);
+    
+    // 计算小时、分钟和秒
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const remainingSeconds = seconds % 60;
+    
+    // 格式化分钟和秒，确保两位数显示
+    const formattedMinutes = minutes.toString().padStart(2, '0');
+    const formattedSeconds = remainingSeconds.toString().padStart(2, '0');
+    
+    // 如果有小时，则显示"时:分:秒"格式，否则只显示"分:秒"格式
+    if (hours > 0) {
+        const formattedHours = hours.toString().padStart(2, '0');
+        return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+    } else {
+        return `${formattedMinutes}:${formattedSeconds}`;
     }
 }
 

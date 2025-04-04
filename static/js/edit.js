@@ -361,7 +361,7 @@ async function loadMyVideos() {
         myVideosPagination.classList.add('hidden');
         
         // 获取视频列表
-        const result = await window.videoAPI.getMyVideos({
+        const result = await window.userAPI.getUserAllVideos({
             page: currentPage,
             pageSize,
             sort: sortBy
@@ -403,20 +403,30 @@ function renderMyVideos(videos) {
         videoCard.className = 'video-manage-card bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 flex';
         
         // 格式化时间和播放量
-        const uploadTimeFormatted = formatTimeAgo(new Date(video.uploadTime));
-        const viewCountFormatted = formatCount(video.viewCount);
+        const uploadTimeFormatted = formatTimeAgo(new Date(video.createTime));
+        const viewCountFormatted = formatCount(video.watch);
+        const durationFormatted = formatDuration(video.duration);
+        
+        // 确定视频状态标记
+        let statusBadge = '';
+        if (video.isDeleted) {
+            statusBadge = `<div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                <span class="text-white text-xs px-2 py-1 bg-red-500 rounded">已删除</span>
+            </div>`;
+        } else if (!video.isChecked) {
+            statusBadge = `<div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                <span class="text-white text-xs px-2 py-1 bg-yellow-500 rounded">审核中</span>
+            </div>`;
+        }
         
         videoCard.innerHTML = `
             <div class="flex-shrink-0">
                 <div class="relative w-48 h-28">
                     <img src="${video.coverUrl}" alt="${video.title}" class="w-full h-full object-cover">
                     <span class="absolute bottom-1 right-1 bg-black bg-opacity-70 text-white text-xs px-1 rounded">
-                        ${video.duration}
+                        ${durationFormatted}
                     </span>
-                    ${video.status === 'processing' ? 
-                        `<div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                            <span class="text-white text-xs px-2 py-1 bg-yellow-500 rounded">处理中</span>
-                        </div>` : ''}
+                    ${statusBadge}
                 </div>
             </div>
             <div class="flex-grow p-4 flex flex-col justify-between">
@@ -428,10 +438,10 @@ function renderMyVideos(videos) {
                     </div>
                 </div>
                 <div class="flex justify-end space-x-2 video-manage-actions">
-                    <button class="video-action-button px-3 py-1 text-xs border border-gray-300 rounded-md hover:bg-gray-50" onclick="openEditCoverModal('${video.videoId}', '${video.coverUrl}', '${video.title}')">
+                    <button class="video-action-button px-3 py-1 text-xs border border-gray-300 rounded-md hover:bg-gray-50" onclick="openEditCoverModal('${video.id}', '${video.coverUrl}', '${video.title}')">
                         修改封面
                     </button>
-                    <button class="video-action-button px-3 py-1 text-xs bg-red-600 text-white rounded-md hover:bg-red-700" onclick="openDeleteVideoModal('${video.videoId}', '${video.title}')">
+                    <button class="video-action-button px-3 py-1 text-xs bg-red-600 text-white rounded-md hover:bg-red-700" onclick="openDeleteVideoModal('${video.id}', '${video.title}')">
                         删除视频
                     </button>
                 </div>
@@ -679,7 +689,7 @@ async function handleDeleteVideo() {
         // 显示加载状态
         confirmDelete.disabled = true;
         confirmDelete.textContent = '删除中...';
-        
+        console.log(videoId)
         // 调用API删除视频
         await window.videoAPI.deleteVideo(videoId);
         
@@ -829,6 +839,35 @@ function formatTimeAgo(date) {
     } else {
         const years = Math.floor(diffInSeconds / 31536000);
         return `${years}年前`;
+    }
+}
+
+/**
+ * 将秒数格式化为"时:分:秒"格式
+ * @param {number} seconds - 总秒数
+ * @returns {string} 格式化后的时间字符串，如"01:30"或"01:30:45"
+ */
+function formatDuration(seconds) {
+    if (!seconds && seconds !== 0) return '00:00';
+    
+    // 确保输入是数字
+    seconds = parseInt(seconds, 10);
+    
+    // 计算小时、分钟和秒
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const remainingSeconds = seconds % 60;
+    
+    // 格式化分钟和秒，确保两位数显示
+    const formattedMinutes = minutes.toString().padStart(2, '0');
+    const formattedSeconds = remainingSeconds.toString().padStart(2, '0');
+    
+    // 如果有小时，则显示"时:分:秒"格式，否则只显示"分:秒"格式
+    if (hours > 0) {
+        const formattedHours = hours.toString().padStart(2, '0');
+        return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+    } else {
+        return `${formattedMinutes}:${formattedSeconds}`;
     }
 }
 

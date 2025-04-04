@@ -180,3 +180,163 @@ def editUserBaseInfo():
     except Exception as e:
         logging.error(f"更新用户信息失败: {str(e)}")
         return jsonify({'code': 500, 'message': f'服务器错误: {str(e)}'}), 500
+    
+@user_bp.route('/user/publicVideos',methods=['GET'])
+def UserpublicVideos():
+    """获取用户的公开视频列表"""
+    try:
+        # 获取查询参数
+        user_id = request.args.get('userId')
+        page = int(request.args.get('page', 1))
+        page_size = int(request.args.get('pageSize', 12))
+        sort = request.args.get('sort', 'newest')
+        
+        # 验证必要参数
+        if not user_id:
+            return jsonify({'code': 400, 'message': '用户ID不能为空'}), 400
+            
+        # 计算偏移量
+        offset = (page - 1) * page_size
+        
+        # 构建排序条件
+        order_by = "create_time DESC"  # 默认按创建时间降序
+        if sort == 'oldest':
+            order_by = "create_time ASC"
+        elif sort == 'popular':
+            order_by = "watch DESC, love DESC"
+            
+        # 查询视频总数
+        count_result = db.fetchOne(
+            "SELECT COUNT(*) as total FROM videoinfo WHERE upload_user = %s AND isdel = 0 AND ischeck = 1",
+            [user_id]
+        )
+        total_videos = count_result['total'] if count_result else 0
+        total_pages = (total_videos + page_size - 1) // page_size
+        
+        # 查询视频列表
+        videos = db.fetchAll(
+            f"""
+            SELECT id, title, bio, video_url, cover_url, duration, create_time, love, watch, collect 
+            FROM videoinfo 
+            WHERE upload_user = %s AND isdel = 0 AND ischeck = 1 
+            ORDER BY {order_by}
+            LIMIT %s, %s
+            """,
+            [user_id, offset, page_size]
+        )
+        
+        # 格式化视频数据
+        formatted_videos = []
+        for video in videos:
+            formatted_videos.append({
+                'id': video['id'],
+                'title': video['title'],
+                'bio': video['bio'],
+                'videoUrl': video['video_url'],
+                'coverUrl': video['cover_url'],
+                'duration': video['duration'],
+                'createTime': video['create_time'].strftime('%Y-%m-%d %H:%M:%S'),
+                'love': video['love'],
+                'watch': video['watch'],
+                'collect': video['collect']
+            })
+        
+        # 返回结果
+        return jsonify({
+            'code': 200,
+            'message': '获取成功',
+            'data': {
+                'videos': formatted_videos,
+                'pagination': {
+                    'currentPage': page,
+                    'pageSize': page_size,
+                    'totalPages': total_pages,
+                    'totalVideos': total_videos
+                }
+            }
+        }), 200
+        
+    except Exception as e:
+        logging.error(f"获取用户视频失败: {str(e)}")
+        return jsonify({'code': 500, 'message': f'服务器错误: {str(e)}'}), 500
+    
+@user_bp.route('/user/allVideos',methods=['GET'])
+def UserAllVideos():
+    """获取用户的所有视频列表（包括未审核和已删除的视频）"""
+    try:
+        # 获取查询参数
+        user_id = request.args.get('userId')
+        page = int(request.args.get('page', 1))
+        page_size = int(request.args.get('pageSize', 12))
+        sort = request.args.get('sort', 'newest')
+        
+        # 验证必要参数
+        if not user_id:
+            return jsonify({'code': 400, 'message': '用户ID不能为空'}), 400
+            
+        # 计算偏移量
+        offset = (page - 1) * page_size
+        
+        # 构建排序条件
+        order_by = "create_time DESC"  # 默认按创建时间降序
+        if sort == 'oldest':
+            order_by = "create_time ASC"
+        elif sort == 'popular':
+            order_by = "watch DESC, love DESC"
+            
+        # 查询视频总数
+        count_result = db.fetchOne(
+            "SELECT COUNT(*) as total FROM videoinfo WHERE upload_user = %s",
+            [user_id]
+        )
+        total_videos = count_result['total'] if count_result else 0
+        total_pages = (total_videos + page_size - 1) // page_size
+        
+        # 查询视频列表
+        videos = db.fetchAll(
+            f"""
+            SELECT id, title, bio, video_url, cover_url, duration, create_time, love, watch, collect, isdel, ischeck 
+            FROM videoinfo 
+            WHERE upload_user = %s 
+            ORDER BY {order_by}
+            LIMIT %s, %s
+            """,
+            [user_id, offset, page_size]
+        )
+        
+        # 格式化视频数据
+        formatted_videos = []
+        for video in videos:
+            formatted_videos.append({
+                'id': video['id'],
+                'title': video['title'],
+                'bio': video['bio'],
+                'videoUrl': video['video_url'],
+                'coverUrl': video['cover_url'],
+                'duration': video['duration'],
+                'createTime': video['create_time'].strftime('%Y-%m-%d %H:%M:%S'),
+                'love': video['love'],
+                'watch': video['watch'],
+                'collect': video['collect'],
+                'isDeleted': video['isdel'] == 1,
+                'isChecked': video['ischeck'] == 1
+            })
+        
+        # 返回结果
+        return jsonify({
+            'code': 200,
+            'message': '获取成功',
+            'data': {
+                'videos': formatted_videos,
+                'pagination': {
+                    'currentPage': page,
+                    'pageSize': page_size,
+                    'totalPages': total_pages,
+                    'totalVideos': total_videos
+                }
+            }
+        }), 200
+        
+    except Exception as e:
+        logging.error(f"获取用户视频失败: {str(e)}")
+        return jsonify({'code': 500, 'message': f'服务器错误: {str(e)}'}), 500

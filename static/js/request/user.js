@@ -188,10 +188,144 @@ async function editUserBaseInfo(userId, boi, username) {
     }
 }
 
+/**
+ * 获取用户的公开视频列表
+ * @param {string} userId - 用户ID
+ * @param {Object} options - 查询选项
+ * @param {number} options.page - 页码，从1开始
+ * @param {number} options.pageSize - 每页视频数量
+ * @param {string} options.sort - 排序方式，可选值：'newest', 'popular', 'oldest'
+ * @returns {Promise<Object>} 包含视频列表和分页信息的对象
+ */
+async function getUserPubilcVideos(userId, options = {}) {
+    try {
+        // 设置默认值
+        const page = options.page || 1;
+        const pageSize = options.pageSize || 12;
+        const sort = options.sort || 'newest';
+        
+        // 构建查询参数
+        const queryParams = new URLSearchParams({
+            userId: userId,
+            page: page,
+            pageSize: pageSize,
+            sort: sort
+        });
+        
+        // 发送GET请求
+        const response = await fetch(`/api/user/publicVideos?${queryParams.toString()}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        // 解析响应
+        const result = await response.json();
+        
+        // 检查响应状态
+        if (response.ok) {
+            return {
+                success: true,
+                videos: result.data.videos || [],
+                pagination: {
+                    currentPage: page,
+                    pageSize: pageSize,
+                    totalPages: result.data.pagination?.totalPages || 1,
+                    totalVideos: result.data.pagination?.totalVideos || 0
+                }
+            };
+        } else {
+            return {
+                success: false,
+                error: result.message || '获取用户视频失败'
+            };
+        }
+    } catch (error) {
+        console.error('获取用户视频请求失败:', error);
+        return {
+            success: false,
+            error: '网络请求失败，请检查网络连接'
+        };
+    }
+}
+
+/**
+ * 获取用户的所有视频列表（包括未审核和已删除的视频）
+ * @param {Object} options - 查询选项
+ * @param {number} options.page - 页码，从1开始
+ * @param {number} options.pageSize - 每页视频数量
+ * @param {string} options.sort - 排序方式，可选值：'newest', 'popular', 'oldest'
+ * @returns {Promise<Object>} 包含视频列表和分页信息的对象
+ */
+async function getUserAllVideos(options = {}) {
+    try {
+        // 设置默认值
+        const page = options.page || 1;
+        const pageSize = options.pageSize || 12;
+        const sort = options.sort || 'newest';
+        
+        // 获取当前用户ID
+        const currentUser = window.authAPI.getCurrentUser();
+        if (!currentUser) {
+            return {
+                success: false,
+                error: '用户未登录'
+            };
+        }
+        
+        // 构建查询参数
+        const queryParams = new URLSearchParams({
+            userId: currentUser.user_id,
+            page: page,
+            pageSize: pageSize,
+            sort: sort
+        });
+        
+        // 发送GET请求
+        const response = await fetch(`/api/user/allVideos?${queryParams.toString()}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        // 解析响应
+        const result = await response.json();
+        
+        // 检查响应状态
+        if (response.ok) {
+            return {
+                success: true,
+                videos: result.data.videos || [],
+                pagination: {
+                    currentPage: page,
+                    pageSize: pageSize,
+                    totalPages: result.data.pagination?.totalPages || 1,
+                    totalVideos: result.data.pagination?.totalVideos || 0
+                }
+            };
+        } else {
+            return {
+                success: false,
+                error: result.message || '获取用户视频失败'
+            };
+        }
+    } catch (error) {
+        console.error('获取用户视频请求失败:', error);
+        return {
+            success: false,
+            error: '网络请求失败，请检查网络连接'
+        };
+    }
+}
+
 // 导出为全局变量，方便在浏览器环境中使用
 window.userAPI = {
     getUserDetails,
     getUserVideos,
     followUser,
-    editUserBaseInfo
+    editUserBaseInfo,
+    getUserPubilcVideos,
+    getUserAllVideos
 };

@@ -154,6 +154,7 @@ class MySql:
         try:
             set_clause = ', '.join([f"{k} = %s" for k in data.keys()])
             sql = f"UPDATE {table} SET {set_clause} WHERE {where}"
+            print(sql,list(data.values()))
             return self.doSql(sql, list(data.values())).rowcount
         except Exception as e:
             logging.error(f"更新数据失败: {str(e)}")

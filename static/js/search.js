@@ -344,9 +344,9 @@ function showEmptyResult() {
  */
 async function checkUserLoginStatus() {
     try {
-        const userInfo = await window.userAPI.getUserInfo();
+        const userInfo = await window.authAPI.getCurrentUser()
         
-        if (userInfo && userInfo.userId) {
+        if (userInfo && userInfo.user_id) {
             // 用户已登录
             updateUserUI(userInfo);
         } else {

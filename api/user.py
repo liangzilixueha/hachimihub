@@ -1,12 +1,24 @@
 from flask import Blueprint, request, jsonify
 from mysql import MySql
 import logging
+import os
+from dotenv import load_dotenv
+
+# 加载.env文件中的环境变量
+load_dotenv('config.env')
 
 # 创建蓝图
 user_bp = Blueprint('user', __name__)
 
+# 从环境变量中获取数据库配置
+db_host = os.getenv('DB_HOST')
+db_name = os.getenv('DB_NAME')
+db_user = os.getenv('DB_USER')
+db_password = os.getenv('DB_PASSWORD')
+db_port = int(os.getenv('DB_PORT'))
+
 # 数据库连接
-db = MySql('127.0.0.1', 'hachimi', 'hachimi', 'Li8jXNhXnKRLR4EX')
+db = MySql(db_host, db_name, db_user, db_password, db_port)
 db.execute_sql_file('init.sql')
 
 @user_bp.route('/register', methods=['POST'])
@@ -127,3 +139,44 @@ def user():
     except Exception as e:
         logging.error(f"获取用户信息失败: {str(e)}")
         return jsonify({'code': 500, 'message': '服务器错误'}), 500
+    
+@user_bp.route('/user/userinfoEdit',methods=['POST'])
+def editUserBaseInfo():
+    #接受来自前端的参数，根据id更新userinfo表中的数据
+    try:
+        # 获取请求数据
+        data = request.get_json()
+        user_id = data.get('userId')
+        bio = data.get('bio')
+        username = data.get('username')
+        
+        # 验证必要参数
+        if not user_id:
+            return jsonify({'code': 400, 'message': '用户ID不能为空'}), 400
+            
+        # 构建更新数据
+        update_data = {}
+        if bio is not None:
+            update_data['bio'] = bio
+        if username is not None:
+            update_data['username'] = username
+            
+        # 如果没有要更新的数据，直接返回成功
+        if not update_data:
+            return jsonify({'code': 200, 'message': '没有需要更新的数据'}), 200
+            
+        # 构建WHERE条件
+        where = f"id = {user_id}"
+        
+        # 执行更新操作
+        affected_rows = db.update('userinfo', update_data, where)
+        db.commit()
+        
+        if affected_rows > 0:
+            return jsonify({'code': 200, 'message': '用户信息更新成功'}), 200
+        else:
+            return jsonify({'code': 404, 'message': '用户不存在或没有数据被更新'}), 404
+            
+    except Exception as e:
+        logging.error(f"更新用户信息失败: {str(e)}")
+        return jsonify({'code': 500, 'message': f'服务器错误: {str(e)}'}), 500

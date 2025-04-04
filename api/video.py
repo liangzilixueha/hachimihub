@@ -1,10 +1,22 @@
+import os
 from flask import Blueprint, jsonify, request
 from mysql import MySql
+from dotenv import load_dotenv
+
+# 加载.env文件中的环境变量
+load_dotenv('config.env')
 
 video_bp = Blueprint('video', __name__)
 
-# 初始化数据库连接
-db = MySql('127.0.0.1', 'hachimi', 'hachimi', 'Li8jXNhXnKRLR4EX')
+# 从环境变量中获取数据库配置
+db_host = os.getenv('DB_HOST')
+db_name = os.getenv('DB_NAME')
+db_user = os.getenv('DB_USER')
+db_password = os.getenv('DB_PASSWORD')
+db_port = int(os.getenv('DB_PORT'))
+
+# 数据库连接
+db = MySql(db_host, db_name, db_user, db_password, db_port)
 
 @video_bp.route('/video', methods=['GET'])
 def get_video_info():

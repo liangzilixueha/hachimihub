@@ -90,11 +90,11 @@ async function init() {
 function checkLoginStatus() {
     const currentUser = window.authAPI.getCurrentUser();
     
-    // if (!currentUser) {
-    //     // 未登录，跳转到登录页面
-    //     window.location.href = '/login.html';
-    //     return;
-    // }
+    if (!currentUser) {
+        // 未登录，跳转到登录页面
+        window.location.href = '/login.html';
+        return;
+    }
     
     // 已登录，更新用户信息
     try {
@@ -231,7 +231,7 @@ async function loadUserProfile() {
         if (!currentUser) return;
         
         // 获取用户详细信息
-        const userDetails = await getUserDetails(currentUser.userId);
+        const userDetails = await getUserDetails(currentUser.user_id);
         
         // 更新表单
         previewAvatar.src = userDetails.avatar;
@@ -302,29 +302,28 @@ async function handleProfileSubmit(event) {
         submitButton.disabled = true;
         submitButton.textContent = '保存中...';
         
-        // 模拟API请求
-        console.log('更新个人资料:', { username, bio });
+        // 获取当前用户ID（假设从某个全局变量或DOM元素中获取）
+        const user = await window.authAPI.getCurrentUser(); // 需要实现此函数
         
-        // 这里应该调用实际的API更新个人资料
-        // 如果有头像文件，也需要上传
-        if (currentAvatar) {
-            console.log('更新头像:', currentAvatar.name);
+        // 调用API更新个人资料
+        const result = await window.userAPI.editUserBaseInfo(user.user_id, bio, username);
+        
+        if (result.success) {
+            // 更新页面显示的用户名
+            usernameDisplay.textContent = username;
+            
+            // 显示成功消息
+            showNotification('个人资料更新成功', 'success');
+            
+            // 添加成功动画
+            profileForm.classList.add('animate-pulse');
+            setTimeout(() => {
+                profileForm.classList.remove('animate-pulse');
+            }, 1000);
+        } else {
+            // 显示错误消息
+            showNotification(result.error || '更新个人资料失败，请重试', 'error');
         }
-        
-        // 模拟延迟
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // 更新页面显示的用户名
-        usernameDisplay.textContent = username;
-        
-        // 显示成功消息
-        showNotification('个人资料更新成功', 'success');
-        
-        // 添加成功动画
-        profileForm.classList.add('animate-pulse');
-        setTimeout(() => {
-            profileForm.classList.remove('animate-pulse');
-        }, 1000);
     } catch (error) {
         console.error('更新个人资料失败:', error);
         showNotification('更新个人资料失败，请重试', 'error');
@@ -334,6 +333,20 @@ async function handleProfileSubmit(event) {
         submitButton.disabled = false;
         submitButton.textContent = originalText;
     }
+}
+
+/**
+ * 获取当前登录用户的ID
+ * @returns {number} 用户ID
+ */
+function getCurrentUserId() {
+    // 从localStorage或sessionStorage中获取用户ID
+    // 这里假设用户ID存储在localStorage的'userId'键中
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+        throw new Error('用户未登录或无法获取用户ID');
+    }
+    return parseInt(userId, 10);
 }
 
 /**

@@ -139,9 +139,59 @@ async function followUser(userId) {
     };
 }
 
+/**
+ * 更新用户的基本信息
+ * @param {int} userId -用户的id
+ * @param {string} boi -用户的个人简介
+ * @param {string} username -用户的用户名
+ * @returns {Promise<Object>} 更新的结果
+ */
+async function editUserBaseInfo(userId, boi, username) {
+    try {
+        // 构建请求数据
+        const requestData = {
+            userId: userId,
+            bio: boi,
+            username: username
+        };
+        console.log(requestData)
+        // 发送POST请求
+        const response = await fetch('/api/user/userinfoEdit', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestData)
+        });
+        
+        // 解析响应
+        const result = await response.json();
+        
+        // 检查响应状态
+        if (response.ok) {
+            return {
+                success: true,
+                data: result
+            };
+        } else {
+            return {
+                success: false,
+                error: result.message || '更新用户信息失败'
+            };
+        }
+    } catch (error) {
+        console.error('更新用户信息请求失败:', error);
+        return {
+            success: false,
+            error: '网络请求失败，请检查网络连接'
+        };
+    }
+}
+
 // 导出为全局变量，方便在浏览器环境中使用
 window.userAPI = {
     getUserDetails,
     getUserVideos,
-    followUser
+    followUser,
+    editUserBaseInfo
 };

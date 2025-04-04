@@ -3,7 +3,6 @@
  */
 
 // API基础URL
-const API_BASE_URL = '/api';
 /**
  * 获取指定用户的详细信息
  * @param {string} userId - 用户ID
@@ -11,46 +10,14 @@ const API_BASE_URL = '/api';
  */
 async function getUserDetails(userId) {
     try {
-        // 模拟API请求
-        console.log(`获取用户信息，ID: ${userId}`);
+        const response = await fetch(`/api/user?id=${userId}`);
+        const result = await response.json();
         
-        // 模拟延迟
-        await new Promise(resolve => setTimeout(resolve, 800));
-        
-        // 返回模拟的用户数据
-        // 通常这里会从后端API获取真实数据
-        
-        // 为了演示，这里根据不同userId返回不同模拟数据
-        const userData = {
-            userId: userId,
-            username: `用户_${userId.slice(0, 4)}`,
-            avatar: '/img/default-avatar.png',
-            bio: '这是一个充满活力的创作者，喜欢分享有趣的视频内容。喜欢动漫、游戏和美食，希望通过视频和大家分享生活中的乐趣。',
-            registerTime: '2023-01-15 12:30:45',
-            stats: {
-                videoCount: Math.floor(Math.random() * 50) + 1,
-                likeCount: Math.floor(Math.random() * 10000) + 100,
-                viewCount: Math.floor(Math.random() * 100000) + 1000
-            }
-        };
-        
-        // 特殊ID展示
-        if (userId === '12345') {
-            userData.username = 'HachimiHub官方';
-            userData.avatar = '/img/manbo.png';
-            userData.bio = '哈吉米视频网站官方账号，负责发布网站公告、更新信息和精选内容推荐。关注我们获取第一手资讯！';
-            userData.stats.videoCount = 120;
-            userData.stats.likeCount = 58792;
-            userData.stats.viewCount = 982547;
-        } else if (userId === '54321') {
-            userData.username = '动漫达人';
-            userData.bio = '专注动漫视频分享10年，超过500部作品解析。每周固定更新，欢迎动漫爱好者关注！';
-            userData.stats.videoCount = 532;
-            userData.stats.likeCount = 243567;
-            userData.stats.viewCount = 3752140;
+        if (result.code !== 200) {
+            throw new Error(result.message || '获取用户信息失败');
         }
         
-        return userData;
+        return result.data;
     } catch (error) {
         console.error('获取用户详情失败:', error);
         throw new Error('获取用户信息失败，请稍后重试');
@@ -171,3 +138,10 @@ async function followUser(userId) {
         isFollowing
     };
 }
+
+// 导出为全局变量，方便在浏览器环境中使用
+window.userAPI = {
+    getUserDetails,
+    getUserVideos,
+    followUser
+};

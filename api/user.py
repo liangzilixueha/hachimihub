@@ -7,6 +7,7 @@ user_bp = Blueprint('user', __name__)
 
 # 数据库连接
 db = MySql('127.0.0.1', 'hachimi', 'hachimi', 'Li8jXNhXnKRLR4EX')
+db.execute_sql_file('init.sql')
 
 @user_bp.route('/register', methods=['POST'])
 def register():
@@ -92,3 +93,37 @@ def login():
         db.rollback()
         logging.error(f"登录失败: {str(e)}")
         return jsonify({'code': 500, 'message': '服务器错误'}), 500 
+    
+@user_bp.route('/user')
+def user():
+    #根据传来的/user?id={id},查询数据
+    user_id = request.args.get('id')
+    if not user_id:
+        return jsonify({'code': 400, 'message': '用户ID不能为空'}), 400
+    
+    try:
+        # 查询用户基本信息
+        user_data = db.fetchOne(
+            "SELECT id, username, avatar_url, bio, register_time, sex, email FROM userinfo WHERE id = %s",
+            [user_id]
+        )
+        
+        if not user_data:
+            return jsonify({'code': 404, 'message': '用户不存在'}), 404
+        
+        # 组合返回数据
+        response_data = {
+            'userId': user_data['id'],
+            'username': user_data['username'],
+            'avatar': user_data['avatar_url'],
+            'bio': user_data['bio'],
+            'registerTime': user_data['register_time'].strftime('%Y-%m-%d %H:%M:%S'),
+            'sex': user_data['sex'],
+            'email': user_data['email']
+        }
+        
+        return jsonify({'code': 200, 'message': '获取成功', 'data': response_data}), 200
+        
+    except Exception as e:
+        logging.error(f"获取用户信息失败: {str(e)}")
+        return jsonify({'code': 500, 'message': '服务器错误'}), 500

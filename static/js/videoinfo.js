@@ -249,7 +249,7 @@ async function handleFollow() {
  */
 async function handleCommentSubmit() {
     // 检查用户是否登录
-    const currentUser = window.userAPI.getCurrentUser();
+    const currentUser= window.authAPI.getCurrentUser();
     if (!currentUser) {
         showNotification('请先登录', 'info');
         return;
@@ -262,13 +262,11 @@ async function handleCommentSubmit() {
         return;
     }
     
-    // 禁用提交按钮
-    commentSubmit.disabled = true;
-    
     try {
         // 提交评论
         const result = await window.commentAPI.submitComment({
             videoId,
+            currentUser,
             content
         });
         
@@ -302,7 +300,11 @@ async function loadVideoInfo() {
         videoLoading.classList.remove('hidden');
         
         // 获取视频信息
-        const videoInfo = await window.videoAPI.getVideoDetail(videoId);
+        const response = await fetch(`/api/video?id=${videoId}`);
+        if (!response.ok) {
+            throw new Error('获取视频信息失败');
+        }
+        const videoInfo = await response.json();
         
         // 更新页面标题
         document.title = `${videoInfo.title} - HachimiHub`;
@@ -333,9 +335,13 @@ async function loadVideoInfo() {
         
         // 初始化视频播放器
         initVideoPlayer(videoInfo.videoUrl);
+        
+        // 隐藏加载状态
+        videoLoading.classList.add('hidden');
     } catch (error) {
         console.error('加载视频信息失败:', error);
         showNotification('加载视频信息失败，请刷新重试', 'error');
+        videoLoading.classList.add('hidden');
     }
 }
 

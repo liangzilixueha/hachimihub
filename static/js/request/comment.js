@@ -22,75 +22,30 @@ window.commentAPI = {
         if (!videoId) {
             throw new Error('视频ID不能为空');
         }
-        
-        // 模拟API请求延时
-        await new Promise(resolve => setTimeout(resolve, 800));
-        
-        // 模拟API响应数据
-        const totalCount = Math.floor(Math.random() * 50) + 10;
-        const totalPages = Math.ceil(totalCount / pageSize);
-        
-        // 生成模拟评论列表
-        const comments = Array.from({ length: Math.min(pageSize, totalCount - (page - 1) * pageSize) }, (_, index) => {
-            const commentId = `comment_${(page - 1) * pageSize + index + 1}`;
-            const randomDate = new Date(Date.now() - Math.floor(Math.random() * 30) * 86400000);
-            
-            return {
-                commentId,
-                videoId,
-                content: [
-                    '这个视频太棒了！制作非常精良。',
-                    '我已经看了五遍了，每次都有新发现。',
-                    '这个主题很有趣，希望能看到更多相关内容。',
-                    '我觉得这个视频可以做得更好，有些地方可以优化。',
-                    '哈哈哈，笑死我了，太有意思了！',
-                    '学习了很多，谢谢分享！',
-                    '期待下一期，已经关注了！',
-                    '这个视频有点短，希望能更详细一些。',
-                    '画面很美，音乐也很配，赞！',
-                    '认真看完了，内容很充实，给个赞。'
-                ][Math.floor(Math.random() * 10)],
-                user: {
-                    userId: `user_${Math.floor(Math.random() * 100) + 1}`,
-                    username: [
-                        '快乐旅行者',
-                        '科技达人',
-                        '美食爱好者',
-                        '游戏玩家',
-                        '音乐发烧友',
-                        '电影控',
-                        '摄影师',
-                        '程序员',
-                        '艺术家',
-                        '健身达人'
-                    ][Math.floor(Math.random() * 10)] + Math.floor(Math.random() * 1000),
-                    avatar: `https://i.pravatar.cc/150?img=${Math.floor(Math.random() * 70) + 1}`
-                },
-                createTime: randomDate.toISOString(),
-                likeCount: Math.floor(Math.random() * 50)
-            };
-        });
-        
-        return {
-            comments,
-            pagination: {
-                currentPage: page,
-                pageSize,
-                totalPages,
-                totalCount
+
+        try {
+            const response = await fetch(`/api/videoComment?id=${videoId}&page=${page}&pageSize=${pageSize}&sort=${sort}`);
+            if (!response.ok) {
+                throw new Error('获取评论失败');
             }
-        };
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('获取评论失败:', error);
+            throw error;
+        }
     },
     
     /**
      * 提交评论
      * @param {Object} commentData - 评论数据
-     * @param {string} commentData.videoId - 视频ID
+     * @param {int} commentData.videoId - 视频ID
+     * @param {int} commentData.userId - 用户ID
      * @param {string} commentData.content - 评论内容
      * @returns {Promise<Object>} 提交结果
      */
     async submitComment(commentData) {
-        const { videoId, content } = commentData;
+        const { videoId, content, parentId = 0 } = commentData;
         
         // 检查用户是否登录
         const currentUser = window.authAPI.getCurrentUser();
@@ -105,28 +60,31 @@ window.commentAPI = {
         if (!content || content.trim() === '') {
             throw new Error('评论内容不能为空');
         }
-        
-        // 模拟API请求延时
-        await new Promise(resolve => setTimeout(resolve, 800));
-        
-        // 模拟API响应数据
-        const newComment = {
-            commentId: `comment_new_${Date.now()}`,
-            videoId,
-            content,
-            user: {
-                userId: currentUser.userId,
-                username: currentUser.username,
-                avatar: currentUser.avatar
-            },
-            createTime: new Date().toISOString(),
-            likeCount: 0
-        };
-        
-        return {
-            success: true,
-            comment: newComment
-        };
+
+        try {
+            const response = await fetch('/api/video/addComment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    videoId,
+                    content,
+                    userId: currentUser.user_id,
+                    parentId
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('提交评论失败');
+            }
+
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('提交评论失败:', error);
+            throw error;
+        }
     },
     
     /**

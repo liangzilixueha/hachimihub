@@ -2,6 +2,11 @@
  * userinfo.js - 用户信息页面交互逻辑
  */
 
+// 检查API是否已加载
+if (typeof window.userAPI === 'undefined') {
+    console.error('userAPI 未加载，请确保 user.js 已正确加载');
+}
+
 // 页面元素
 const searchInput = document.getElementById('search-input');
 const searchButton = document.getElementById('search-button');
@@ -80,6 +85,7 @@ async function init() {
     
     // 获取URL中的用户ID
     const userId = getUserIdFromUrl();
+    console.log(userId)
     if (userId) {
         currentUserId = userId;
         await loadUserProfile(userId);
@@ -95,19 +101,17 @@ async function init() {
  * @returns {string|null} 用户ID或null
  */
 function getUserIdFromUrl() {
-    // 假设URL格式为 /hachimi/123456 或 /hachimihub/hachimi/123456
+    //url格式为/user/{id},请返回其中的id
     const path = window.location.pathname;
-    const matches = path.match(/\/hachimi\/([^\/]+)/);
-    return 123
-    return matches ? matches[1] : null;
+    const parts = path.split('/');
+    return parts[2];
 }
 
 /**
  * 检查用户登录状态
  */
 function checkLoginStatus() {
-    const currentUser = window.authAPI.getCurrentUser();
-    
+    const currentUser = window.authAPI.isLoggedIn();
     if (currentUser) {
         // 用户已登录
         loggedInView.classList.remove('hidden');
@@ -148,7 +152,7 @@ async function handleLogout() {
 function handleSearch() {
     const query = searchInput.value.trim();
     if (query) {
-        window.location.href = `/search.html?q=${encodeURIComponent(query)}`;
+        window.location.href = `/search?keyword=${encodeURIComponent(query)}`;
     }
 }
 
@@ -166,8 +170,8 @@ async function loadUserProfile(userId) {
         profileVideoCount.textContent = '-';
         profileLikeCount.textContent = '-';
         profileViewCount.textContent = '-';
-        
         // 获取用户信息
+        console.log(window.userAPI)
         const userData = await window.userAPI.getUserDetails(userId);
         
         // 更新页面标题
@@ -208,7 +212,7 @@ async function loadUserVideos(userId) {
         pagination.classList.add('hidden');
         
         // 获取用户视频列表
-        const result = await window.userAPI.getUserVideos(userId, {
+        const result = await getUserVideos(userId, {
             page: currentPage,
             pageSize,
             sort: sortBy

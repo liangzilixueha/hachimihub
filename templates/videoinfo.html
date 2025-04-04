@@ -58,7 +58,7 @@
                     
                     <!-- 用户下拉菜单 -->
                     <div id="user-dropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 hidden">
-                        <a href="{{ url_for('userinfo') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">个人主页</a>
+                        <a href="{{ url_for('userinfo', id=current_user_id) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">个人主页</a>
                         <a href="{{ url_for('edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">个人设置</a>
                         <button id="logout-button" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">退出登录</button>
                     </div>
@@ -221,10 +221,10 @@
     <script src="https://cdn.jsdelivr.net/npm/artplayer/dist/artplayer.js"></script>
     
     <!-- API 请求 -->
+    <script src="{{ url_for('static', filename='js/request/auth.js') }}"></script>
     <script src="{{ url_for('static', filename='js/request/user.js') }}"></script>
     <script src="{{ url_for('static', filename='js/request/video.js') }}"></script>
     <script src="{{ url_for('static', filename='js/request/comment.js') }}"></script>
-    
     <!-- 页面逻辑 -->
     <script src="{{ url_for('static', filename='js/videoinfo.js') }}"></script>
 </body>

@@ -1,6 +1,7 @@
 from flask import Flask, render_template, send_from_directory, request
 import os
 from api.user import user_bp
+from api.video import video_bp
 
 app = Flask(__name__, 
     static_folder='static',
@@ -11,6 +12,7 @@ app = Flask(__name__,
 app.config['SECRET_KEY'] = 'your-secret-key-here'
 
 app.register_blueprint(user_bp, url_prefix='/api')
+app.register_blueprint(video_bp, url_prefix='/api')
 
 @app.route('/')
 def index():

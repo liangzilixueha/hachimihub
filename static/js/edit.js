@@ -231,7 +231,7 @@ async function loadUserProfile() {
         if (!currentUser) return;
         
         // 获取用户详细信息
-        const userDetails = await window.userAPI.getUserDetails(currentUser.userId);
+        const userDetails = await getUserDetails(currentUser.userId);
         
         // 更新表单
         previewAvatar.src = userDetails.avatar;

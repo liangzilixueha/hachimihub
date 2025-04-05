@@ -2,6 +2,7 @@ import os
 from flask import Blueprint, jsonify, request
 from mysql import MySql
 from dotenv import load_dotenv
+import logging
 
 # 加载.env文件中的环境变量
 load_dotenv('config.env')
@@ -197,3 +198,89 @@ def add_comment():
     except Exception as e:
         print(e)
         return jsonify({'error': str(e)}), 500
+
+@video_bp.route('/video/searchVideos', methods=['GET'])
+def searchVideos():
+    """搜索视频接口"""
+    try:
+        # 获取查询参数
+        keyword = request.args.get('keyword', '')
+        page = int(request.args.get('page', 1))
+        page_size = int(request.args.get('pageSize', 10))
+        sort = request.args.get('sort', 'newest')
+        
+        # 验证参数
+        if not keyword:
+            return jsonify({'code': 400, 'message': '搜索关键词不能为空'}), 400
+            
+        # 计算偏移量
+        offset = (page - 1) * page_size
+        
+        # 构建排序条件
+        order_by = "create_time DESC"  # 默认按创建时间降序
+        if sort == 'oldest':
+            order_by = "create_time ASC"
+        elif sort == 'popular':
+            order_by = "watch DESC, love DESC"
+            
+        # 查询视频总数
+        count_result = db.fetchOne(
+            "SELECT COUNT(*) as total FROM videoinfo WHERE (title LIKE %s OR bio LIKE %s) AND isdel = 0 AND ischeck = 1",
+            [f'%{keyword}%', f'%{keyword}%']
+        )
+        total_videos = count_result['total'] if count_result else 0
+        total_pages = (total_videos + page_size - 1) // page_size
+        
+        # 查询视频列表
+        videos = db.fetchAll(
+            f"""
+            SELECT v.id, v.title, v.bio, v.video_url, v.cover_url, v.duration, v.create_time, 
+                   v.love, v.watch, v.collect, v.upload_user, u.username, u.avatar_url
+            FROM videoinfo v
+            LEFT JOIN userinfo u ON v.upload_user = u.id
+            WHERE (v.title LIKE %s OR v.bio LIKE %s) AND v.isdel = 0 AND v.ischeck = 1
+            ORDER BY {order_by}
+            LIMIT %s, %s
+            """,
+            [f'%{keyword}%', f'%{keyword}%', offset, page_size]
+        )
+        
+        # 格式化视频数据
+        formatted_videos = []
+        for video in videos:
+            formatted_videos.append({
+                'id': video['id'],
+                'title': video['title'],
+                'bio': video['bio'],
+                'videoUrl': video['video_url'],
+                'coverUrl': video['cover_url'],
+                'duration': video['duration'],
+                'createTime': video['create_time'].strftime('%Y-%m-%d %H:%M:%S'),
+                'love': video['love'],
+                'watch': video['watch'],
+                'collect': video['collect'],
+                'user': {
+                    'userId': video['upload_user'],
+                    'username': video['username'],
+                    'avatar': video['avatar_url']
+                }
+            })
+        
+        # 返回结果
+        return jsonify({
+            'code': 200,
+            'message': '搜索成功',
+            'data': {
+                'videos': formatted_videos,
+                'pagination': {
+                    'currentPage': page,
+                    'pageSize': page_size,
+                    'totalPages': total_pages,
+                    'totalVideos': total_videos
+                }
+            }
+        }), 200
+        
+    except Exception as e:
+        logging.error(f"搜索视频失败: {str(e)}")
+        return jsonify({'code': 500, 'message': f'服务器错误: {str(e)}'}), 500

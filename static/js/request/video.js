@@ -321,5 +321,61 @@ window.videoAPI = {
         return {
             videos
         };
+    },
+
+    /**
+     * 搜索视频
+     * @param {string} keyword - 搜索关键词
+     * @param {number} page - 页码，从1开始
+     * @param {number} pageSize - 每页视频数量
+     * @param {string} sort - 排序方式，可选值：'newest', 'oldest', 'popular'
+     * @returns {Promise<Object>} 包含视频列表和分页信息的对象
+     */
+    async searchVideos(keyword, page = 1, pageSize = 10, sort = 'newest') {
+        try {
+            // 构建查询参数
+            const queryParams = new URLSearchParams({
+                keyword: keyword,
+                page: page,
+                pageSize: pageSize,
+                sort: sort
+            });
+            
+            // 发送GET请求
+            const response = await fetch(`/api/video/searchVideos?${queryParams.toString()}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            // 解析响应
+            const result = await response.json();
+            
+            // 检查响应状态
+            if (result.code === 200) {
+                return {
+                    success: true,
+                    videos: result.data.videos || [],
+                    pagination: result.data.pagination || {
+                        currentPage: page,
+                        pageSize: pageSize,
+                        totalPages: 0,
+                        totalVideos: 0
+                    }
+                };
+            } else {
+                return {
+                    success: false,
+                    error: result.message || '搜索视频失败'
+                };
+            }
+        } catch (error) {
+            console.error('搜索视频请求失败:', error);
+            return {
+                success: false,
+                error: '网络请求失败，请检查网络连接'
+            };
+        }
     }
 }; 

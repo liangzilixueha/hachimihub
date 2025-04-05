@@ -125,11 +125,16 @@ async function performSearch(keyword, page) {
         // 调用搜索API
         const searchResult = await window.videoAPI.searchVideos(keyword, page, pageSize);
         
+        // 检查搜索结果
+        if (!searchResult.success) {
+            throw new Error(searchResult.error || '搜索失败');
+        }
+        
         // 更新结果计数
-        searchResultCountElement.textContent = searchResult.total || 0;
+        searchResultCountElement.textContent = searchResult.pagination.totalVideos || 0;
         
         // 计算总页数
-        totalPages = Math.ceil((searchResult.total || 0) / pageSize);
+        totalPages = searchResult.pagination.totalPages || 1;
         
         // 如果没有结果
         if (!searchResult.videos || searchResult.videos.length === 0) {
@@ -176,14 +181,14 @@ function createVideoCard(video) {
     card.className = 'video-card bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow';
     
     // 格式化播放量
-    const viewCount = formatViewCount(video.viewCount || 0);
+    const viewCount = formatViewCount(video.watch || 0);
     
     // 格式化时间
-    const timeAgo = formatTimeAgo(video.publishedAt || new Date().toISOString());
+    const timeAgo = formatTimeAgo(video.createTime || new Date().toISOString());
     
     card.innerHTML = `
         <div class="relative">
-            <img src="${video.thumbnail || 'https://via.placeholder.com/300x200?text=Video'}" alt="${video.title}" class="w-full h-40 object-cover">
+            <img src="${video.coverUrl || 'https://via.placeholder.com/300x200?text=Video'}" alt="${video.title}" class="w-full h-40 object-cover">
             <span class="absolute bottom-1 right-1 bg-black bg-opacity-70 text-white text-xs px-1 rounded">${video.duration || '00:00'}</span>
         </div>
         <div class="p-3">

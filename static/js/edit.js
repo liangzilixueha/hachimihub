@@ -3,11 +3,8 @@
  */
 
 // 页面元素 - 顶部导航
-const searchInput = document.getElementById('search-input');
-const searchButton = document.getElementById('search-button');
 const userMenuButton = document.getElementById('user-menu-button');
 const userDropdown = document.getElementById('user-dropdown');
-const userAvatar = document.getElementById('user-avatar');
 const usernameDisplay = document.getElementById('username-display');
 const logoutButton = document.getElementById('logout-button');
 
@@ -24,7 +21,7 @@ const profileForm = document.getElementById('profile-form');
 const previewAvatar = document.getElementById('preview-avatar');
 const avatarUploadButton = document.getElementById('avatar-upload-button');
 const avatarInput = document.getElementById('avatar-input');
-const usernameInput = document.getElementById('username');
+const editusernameInput = document.getElementById('editusername');
 const bioInput = document.getElementById('bio');
 
 // 页面元素 - 视频管理
@@ -92,7 +89,7 @@ function checkLoginStatus() {
     
     if (!currentUser) {
         // 未登录，跳转到登录页面
-        window.location.href = '/login.html';
+        window.location.href = '/login';
         return;
     }
     
@@ -110,23 +107,6 @@ function checkLoginStatus() {
  * 注册所有事件监听器
  */
 function registerEventListeners() {
-    // 搜索相关
-    searchButton.addEventListener('click', handleSearch);
-    searchInput.addEventListener('keypress', e => {
-        if (e.key === 'Enter') handleSearch();
-    });
-    
-    // 用户菜单相关
-    userMenuButton.addEventListener('click', toggleUserMenu);
-    logoutButton.addEventListener('click', handleLogout);
-    
-    // 点击页面其他位置关闭用户菜单
-    document.addEventListener('click', e => {
-        if (!userMenuButton.contains(e.target) && !userDropdown.contains(e.target)) {
-            userDropdown.classList.add('hidden');
-        }
-    });
-    console.log('注册')
     // 选项卡切换
     profileTab.addEventListener('click', () => switchTab('profile'));
     videosTab.addEventListener('click', () => switchTab('videos'));
@@ -182,7 +162,7 @@ function toggleUserMenu() {
 async function handleLogout() {
     try {
         await window.userAPI.logout();
-        window.location.href = '/login.html';
+        window.location.href = '/login';
     } catch (error) {
         showNotification('退出登录失败，请重试', 'error');
     }
@@ -235,7 +215,7 @@ async function loadUserProfile() {
         
         // 更新表单
         previewAvatar.src = userDetails.avatar;
-        usernameInput.value = userDetails.username;
+        editusernameInput.value = userDetails.username;
         bioInput.value = userDetails.bio || '';
     } catch (error) {
         console.error('加载用户资料失败:', error);
@@ -285,20 +265,18 @@ function handleAvatarChange(event) {
  */
 async function handleProfileSubmit(event) {
     event.preventDefault();
-    
+    // 显示加载状态
+    const submitButton = profileForm.querySelector('button[type="submit"]');
+    const originalText = submitButton.textContent;
     try {
         // 获取表单数据
-        const username = usernameInput.value.trim();
+        const username = editusernameInput.value.trim();
         const bio = bioInput.value.trim();
         
         if (!username) {
             showNotification('用户名不能为空', 'error');
             return;
         }
-        
-        // 显示加载状态
-        const submitButton = profileForm.querySelector('button[type="submit"]');
-        const originalText = submitButton.textContent;
         submitButton.disabled = true;
         submitButton.textContent = '保存中...';
         
@@ -307,10 +285,8 @@ async function handleProfileSubmit(event) {
         
         // 调用API更新个人资料
         const result = await window.userAPI.editUserBaseInfo(user.user_id, bio, username);
-        
+        console.log(result)
         if (result.success) {
-            // 更新页面显示的用户名
-            usernameDisplay.textContent = username;
             
             // 显示成功消息
             showNotification('个人资料更新成功', 'success');

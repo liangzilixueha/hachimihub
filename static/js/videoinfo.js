@@ -2,17 +2,6 @@
  * videoinfo.js - 视频详情页交互逻辑
  */
 
-// 页面元素 - 顶部导航
-const searchInput = document.getElementById('search-input');
-const searchButton = document.getElementById('search-button');
-const userMenuButton = document.getElementById('user-menu-button');
-const userDropdown = document.getElementById('user-dropdown');
-const userAvatar = document.getElementById('user-avatar');
-const usernameDisplay = document.getElementById('username-display');
-const logoutButton = document.getElementById('logout-button');
-const notLoggedIn = document.getElementById('not-logged-in');
-const loggedIn = document.getElementById('logged-in');
-
 // 页面元素 - 视频播放器
 const videoPlayerContainer = document.getElementById('video-player-container');
 const videoLoading = document.getElementById('video-loading');
@@ -66,9 +55,6 @@ async function init() {
     const urlParams = new URLSearchParams(window.location.pathname.split('/').pop());
     videoId = urlParams.get('id') || window.location.pathname.split('/').pop().replace('hjm', '');
     
-    // 检查用户登录状态
-    checkLoginStatus();
-    
     // 注册事件监听器
     registerEventListeners();
     
@@ -88,55 +74,9 @@ async function init() {
 }
 
 /**
- * 检查用户登录状态
- */
-function checkLoginStatus() {
-    const currentUser = window.authAPI.getCurrentUser();
-    
-    if (currentUser) {
-        // 已登录，显示用户信息
-        loggedIn.classList.remove('hidden');
-        notLoggedIn.classList.add('hidden');
-        
-        userAvatar.src = currentUser.avatar;
-        usernameDisplay.textContent = currentUser.username;
-        
-        // 更新评论区
-        commentInputContainer.classList.remove('hidden');
-        commentLoginTip.classList.add('hidden');
-        commentUserAvatar.src = currentUser.avatar;
-    } else {
-        // 未登录，显示登录按钮
-        loggedIn.classList.add('hidden');
-        notLoggedIn.classList.remove('hidden');
-        
-        // 更新评论区
-        commentInputContainer.classList.add('hidden');
-        commentLoginTip.classList.remove('hidden');
-    }
-}
-
-/**
  * 注册所有事件监听器
  */
 function registerEventListeners() {
-    // 搜索相关
-    searchButton.addEventListener('click', handleSearch);
-    searchInput.addEventListener('keypress', e => {
-        if (e.key === 'Enter') handleSearch();
-    });
-    
-    // 用户菜单相关
-    userMenuButton.addEventListener('click', toggleUserMenu);
-    logoutButton.addEventListener('click', handleLogout);
-    
-    // 点击页面其他位置关闭用户菜单
-    document.addEventListener('click', e => {
-        if (!userMenuButton.contains(e.target) && !userDropdown.contains(e.target)) {
-            userDropdown.classList.add('hidden');
-        }
-    });
-    
     // 视频交互相关
     likeButton.addEventListener('click', handleLike);
     followButton.addEventListener('click', handleFollow);
@@ -145,35 +85,6 @@ function registerEventListeners() {
     commentSubmit.addEventListener('click', handleCommentSubmit);
     commentPrevPage.addEventListener('click', () => changeCommentPage(commentCurrentPage - 1));
     commentNextPage.addEventListener('click', () => changeCommentPage(commentCurrentPage + 1));
-}
-
-/**
- * 处理搜索
- */
-function handleSearch() {
-    const query = searchInput.value.trim();
-    if (query) {
-        window.location.href = `/search.html?q=${encodeURIComponent(query)}`;
-    }
-}
-
-/**
- * 切换用户菜单显示状态
- */
-function toggleUserMenu() {
-    userDropdown.classList.toggle('hidden');
-}
-
-/**
- * 处理退出登录
- */
-async function handleLogout() {
-    try {
-        await window.userAPI.logout();
-        window.location.reload();
-    } catch (error) {
-        showNotification('退出登录失败，请重试', 'error');
-    }
 }
 
 /**

@@ -66,12 +66,13 @@ def login():
         data = request.get_json()
         username = data.get('account')
         pwd = data.get('password')
+        print(data)
         if not username or not pwd:
             return jsonify({'code': 400, 'message': '用户名和密码不能为空'}), 400
 
         # 验证用户
         user = db.fetchOne(
-            "SELECT id, username, pwd FROM userinfo WHERE username = %s",
+            "SELECT id, username, email, pwd FROM userinfo WHERE email = %s",
             [username]
         )
 

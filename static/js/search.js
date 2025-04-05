@@ -3,8 +3,6 @@
  */
 
 // 页面元素
-const searchInput = document.getElementById('search-input');
-const searchButton = document.getElementById('search-button');
 const searchKeywordElement = document.getElementById('search-keyword');
 const searchResultCountElement = document.getElementById('search-result-count');
 const resultContainer = document.getElementById('result-container');
@@ -14,15 +12,6 @@ const searchResultsElement = document.getElementById('search-results');
 const pageNumbersContainer = document.getElementById('page-numbers');
 const prevPageButton = document.getElementById('prev-page');
 const nextPageButton = document.getElementById('next-page');
-
-// 用户信息相关元素
-const userAvatar = document.getElementById('user-avatar');
-const userMenu = document.getElementById('user-menu');
-const notLoggedInSection = document.getElementById('not-logged-in');
-const loggedInSection = document.getElementById('logged-in');
-const usernameElement = document.getElementById('username');
-const userLevelElement = document.getElementById('user-level');
-const logoutBtn = document.getElementById('logout-btn');
 
 // 状态变量
 let currentKeyword = '';
@@ -36,22 +25,19 @@ let pageSize = 10; // 每页显示的视频数量
 async function init() {
     // 从URL中获取搜索关键词
     const urlParams = new URLSearchParams(window.location.search);
-    currentKeyword = urlParams.get('keyword') || '';
     
+    currentKeyword = urlParams.get('keyword') || '';
+    console.log(currentKeyword)
     // 设置搜索输入框的值
     if (currentKeyword) {
         searchInput.value = currentKeyword;
         searchKeywordElement.textContent = currentKeyword;
-        
         // 执行搜索
         await performSearch(currentKeyword, currentPage);
     } else {
         // 如果没有关键词，显示空结果
         showEmptyResult();
     }
-    
-    // 初始化用户状态
-    await checkUserLoginStatus();
     
     // 初始化事件监听器
     initEventListeners();
@@ -74,21 +60,6 @@ function initEventListeners() {
     // 分页按钮点击事件
     prevPageButton.addEventListener('click', handlePrevPage);
     nextPageButton.addEventListener('click', handleNextPage);
-    
-    // 用户头像点击事件 - 显示/隐藏用户菜单
-    userAvatar.addEventListener('click', toggleUserMenu);
-    
-    // 点击页面其他地方隐藏用户菜单
-    document.addEventListener('click', (event) => {
-        if (!userAvatar.contains(event.target) && !userMenu.contains(event.target)) {
-            userMenu.classList.remove('active');
-        }
-    });
-    
-    // 退出登录按钮点击事件
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', handleLogout);
-    }
 }
 
 /**
@@ -342,129 +313,6 @@ function showEmptyResult() {
     searchResultsElement.classList.add('hidden');
     loadingResultElement.classList.add('hidden');
     emptyResultElement.classList.remove('hidden');
-}
-
-/**
- * 检查用户登录状态
- */
-async function checkUserLoginStatus() {
-    try {
-        const userInfo = await window.authAPI.getCurrentUser()
-        
-        if (userInfo && userInfo.user_id) {
-            // 用户已登录
-            updateUserUI(userInfo);
-        } else {
-            // 用户未登录
-            showNotLoggedInUI();
-        }
-    } catch (error) {
-        console.error('检查登录状态失败:', error);
-        showNotLoggedInUI();
-    }
-}
-
-/**
- * 更新用户UI
- * @param {Object} userInfo - 用户信息
- */
-function updateUserUI(userInfo) {
-    // 隐藏未登录区域，显示已登录区域
-    if (notLoggedInSection) notLoggedInSection.classList.add('hidden');
-    if (loggedInSection) loggedInSection.classList.remove('hidden');
-    
-    // 更新用户名和等级
-    if (usernameElement) usernameElement.textContent = userInfo.username || '用户';
-    if (userLevelElement) userLevelElement.textContent = `等级: ${userInfo.level || 1}`;
-    
-    // 更新头像
-    const avatarImg = userAvatar.querySelector('img');
-    if (avatarImg && userInfo.avatar) {
-        avatarImg.src = userInfo.avatar;
-    }
-}
-
-/**
- * 显示未登录的UI
- */
-function showNotLoggedInUI() {
-    // 显示未登录区域，隐藏已登录区域
-    if (notLoggedInSection) notLoggedInSection.classList.remove('hidden');
-    if (loggedInSection) loggedInSection.classList.add('hidden');
-    
-    // 恢复默认头像
-    const avatarImg = userAvatar.querySelector('img');
-    if (avatarImg) {
-        avatarImg.src = 'https://via.placeholder.com/100?text=User';
-    }
-}
-
-/**
- * 切换用户菜单显示/隐藏
- */
-function toggleUserMenu() {
-    userMenu.classList.toggle('active');
-    userMenu.classList.toggle('hidden');
-}
-
-/**
- * 处理退出登录
- * @param {Event} event - 事件对象
- */
-async function handleLogout(event) {
-    event.preventDefault();
-    
-    try {
-        const success = await window.userAPI.logout();
-        
-        if (success) {
-            // 退出成功，更新UI
-            showNotLoggedInUI();
-            toggleUserMenu(); // 隐藏菜单
-            
-            // 显示成功消息
-            showMessage('退出登录成功', 'success');
-        } else {
-            // 退出失败
-            showMessage('退出登录失败，请重试', 'error');
-        }
-    } catch (error) {
-        console.error('退出登录错误:', error);
-        showMessage('退出登录时发生错误', 'error');
-    }
-}
-
-/**
- * 显示消息提示
- * @param {string} message - 消息内容
- * @param {string} type - 消息类型：'info', 'success', 'error', 'warning'
- */
-function showMessage(message, type = 'info') {
-    // 创建消息元素
-    const messageElement = document.createElement('div');
-    let bgColor = 'bg-blue-500';
-    
-    if (type === 'success') {
-        bgColor = 'bg-green-500';
-    } else if (type === 'error') {
-        bgColor = 'bg-red-500';
-    } else if (type === 'warning') {
-        bgColor = 'bg-yellow-500';
-    }
-    
-    messageElement.className = `fixed top-4 right-4 ${bgColor} text-white px-4 py-2 rounded shadow-lg z-50 animate-fade-in`;
-    messageElement.textContent = message;
-    
-    // 添加到页面
-    document.body.appendChild(messageElement);
-    
-    // 3秒后自动移除
-    setTimeout(() => {
-        messageElement.style.opacity = '0';
-        setTimeout(() => {
-            document.body.removeChild(messageElement);
-        }, 300);
-    }, 3000);
 }
 
 /**

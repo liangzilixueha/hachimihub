@@ -2,17 +2,6 @@
  * uploadvideo.js - 视频上传页面交互逻辑
  */
 
-// 页面元素 - 顶部导航
-const searchInput = document.getElementById('search-input');
-const searchButton = document.getElementById('search-button');
-const userMenuButton = document.getElementById('user-menu-button');
-const userDropdown = document.getElementById('user-dropdown');
-const userAvatar = document.getElementById('user-avatar');
-const usernameDisplay = document.getElementById('username-display');
-const logoutButton = document.getElementById('logout-button');
-const notLoggedIn = document.getElementById('not-logged-in');
-const loggedIn = document.getElementById('logged-in');
-
 // 页面元素 - 步骤指示器
 const uploadSteps = document.querySelectorAll('.upload-step');
 const uploadStepContents = document.querySelectorAll('.upload-step-content');
@@ -80,56 +69,14 @@ let uploadedVideoId = null;
  * 初始化页面
  */
 async function init() {
-    // 检查用户登录状态
-    checkLoginStatus();
-    
     // 注册事件监听器
     registerEventListeners();
-}
-
-/**
- * 检查用户登录状态
- */
-function checkLoginStatus() {
-    const currentUser = window.authAPI ? window.authAPI.getCurrentUser() : null;
-    if (currentUser) {
-        // 已登录，显示用户信息
-        loggedIn.classList.remove('hidden');
-        notLoggedIn.classList.add('hidden');
-        
-        userAvatar.src = currentUser.avatar;
-        usernameDisplay.textContent = currentUser.username;
-    } else {
-        // 未登录，显示登录按钮
-        loggedIn.classList.add('hidden');
-        notLoggedIn.classList.remove('hidden');
-        
-        // 重定向到登录页面，上传视频必须登录
-        window.location.href = 'login.html?redirect=uploadvideo.html';
-    }
 }
 
 /**
  * 注册所有事件监听器
  */
 function registerEventListeners() {
-    // 搜索相关
-    searchButton.addEventListener('click', handleSearch);
-    searchInput.addEventListener('keypress', e => {
-        if (e.key === 'Enter') handleSearch();
-    });
-    
-    // 用户菜单相关
-    userMenuButton.addEventListener('click', toggleUserMenu);
-    logoutButton.addEventListener('click', handleLogout);
-    
-    // 点击页面其他位置关闭用户菜单
-    document.addEventListener('click', e => {
-        if (!userMenuButton.contains(e.target) && !userDropdown.contains(e.target)) {
-            userDropdown.classList.add('hidden');
-        }
-    });
-    
     // 步骤1：视频上传
     videoDropArea.addEventListener('click', () => videoFileInput.click());
     videoFileInput.addEventListener('change', handleVideoFileSelect);
@@ -263,37 +210,6 @@ function registerEventListeners() {
     closeCropModal.addEventListener('click', closeCropperModal);
     cancelCropButton.addEventListener('click', closeCropperModal);
     confirmCropButton.addEventListener('click', applyCrop);
-}
-
-/**
- * 处理搜索
- */
-function handleSearch() {
-    const query = searchInput.value.trim();
-    if (query) {
-        window.location.href = `/search.html?q=${encodeURIComponent(query)}`;
-    }
-}
-
-/**
- * 切换用户菜单显示状态
- */
-function toggleUserMenu() {
-    userDropdown.classList.toggle('hidden');
-}
-
-/**
- * 处理退出登录
- */
-async function handleLogout() {
-    try {
-        if (window.authAPI) {
-            await window.authAPI.logout();
-        }
-        window.location.href = 'login.html';
-    } catch (error) {
-        showNotification('退出登录失败，请重试', 'error');
-    }
 }
 
 /**

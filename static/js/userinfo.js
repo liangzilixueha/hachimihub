@@ -8,13 +8,10 @@ if (typeof window.userAPI === 'undefined') {
 }
 
 // 页面元素
-const searchInput = document.getElementById('search-input');
-const searchButton = document.getElementById('search-button');
 const userMenuButton = document.getElementById('user-menu-button');
 const userDropdown = document.getElementById('user-dropdown');
 const loggedInView = document.getElementById('logged-in-view');
 const notLoggedInView = document.getElementById('not-logged-in-view');
-const userAvatar = document.getElementById('user-avatar');
 const usernameDisplay = document.getElementById('username-display');
 const logoutButton = document.getElementById('logout-button');
 
@@ -51,20 +48,6 @@ let sortBy = 'latest'; // 'latest' 或 'popular'
  * 初始化页面
  */
 async function init() {
-    // 注册事件监听器
-    searchButton.addEventListener('click', handleSearch);
-    searchInput.addEventListener('keypress', e => {
-        if (e.key === 'Enter') handleSearch();
-    });
-    
-    if (userMenuButton) {
-        userMenuButton.addEventListener('click', toggleUserMenu);
-    }
-    
-    if (logoutButton) {
-        logoutButton.addEventListener('click', handleLogout);
-    }
-    
     // 排序按钮
     sortLatest.addEventListener('click', () => changeSort('latest'));
     sortPopular.addEventListener('click', () => changeSort('popular'));
@@ -72,16 +55,6 @@ async function init() {
     // 分页按钮
     prevPageButton.addEventListener('click', () => changePage(currentPage - 1));
     nextPageButton.addEventListener('click', () => changePage(currentPage + 1));
-    
-    // 点击页面其他位置关闭用户菜单
-    document.addEventListener('click', e => {
-        if (userMenuButton && !userMenuButton.contains(e.target) && !userDropdown.contains(e.target)) {
-            userDropdown.classList.add('hidden');
-        }
-    });
-    
-    // 检查用户登录状态
-    checkLoginStatus();
     
     // 获取URL中的用户ID
     const userId = getUserIdFromUrl();

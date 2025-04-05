@@ -53,21 +53,6 @@ function initSwiper() {
 
 // 初始化事件监听器
 function initEventListeners() {
-    // 用户头像点击事件 - 显示/隐藏用户菜单
-    userAvatar.addEventListener('click', toggleUserMenu);
-    
-    // 点击页面其他地方隐藏用户菜单
-    document.addEventListener('click', (event) => {
-        if (!userAvatar.contains(event.target) && !userMenu.contains(event.target)) {
-            userMenu.classList.remove('active');
-            userMenu.classList.remove('hidden');
-        }
-    });
-    
-    // 退出登录按钮点击事件
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', handleLogout);
-    }
     
     // 搜索事件
     searchInput.addEventListener('keyup', (event) => {

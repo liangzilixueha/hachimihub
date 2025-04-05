@@ -6,70 +6,6 @@
     --theme-color-light: rgb(197, 139, 138);
 }
 
-/* 步骤指示器 */
-.upload-step {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    z-index: 1;
-}
-
-.step-number {
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 50%;
-    background-color: #f3f4f6;
-    border: 2px solid #e5e7eb;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    color: #6b7280;
-    transition: all 0.3s ease;
-}
-
-.step-text {
-    margin-top: 0.5rem;
-    font-size: 0.875rem;
-    color: #6b7280;
-    white-space: nowrap;
-}
-
-.upload-step.active .step-number {
-    background-color: var(--theme-color);
-    border-color: var(--theme-color);
-    color: white;
-}
-
-.upload-step.active .step-text {
-    color: var(--theme-color);
-    font-weight: 500;
-}
-
-.upload-step.completed .step-number {
-    background-color: #10b981;
-    border-color: #10b981;
-    color: white;
-}
-
-.step-line {
-    height: 2px;
-}
-
-.upload-step.active ~ .step-line,
-.upload-step.completed ~ .step-line {
-    background-color: var(--theme-color);
-}
-
-/* 上传步骤内容区域 */
-.upload-step-content {
-    display: none;
-}
-
-.upload-step-content.active {
-    display: block;
-}
-
 /* 视频拖放区域 */
 #video-drop-area {
     transition: all 0.3s ease;
@@ -173,17 +109,13 @@
     margin: 0 auto;
 }
 
-/* 响应式调整 */
-@media (max-width: 640px) {
-    .step-text {
-        font-size: 0.75rem;
-    }
-    
-    .step-number {
-        width: 2rem;
-        height: 2rem;
-        font-size: 0.875rem;
-    }
+/* 上传状态 */
+#upload-status {
+    transition: all 0.3s ease;
+}
+
+#upload-progress {
+    transition: width 0.3s ease;
 }
 
 /* 当已上传状态时按钮禁用 */
@@ -202,6 +134,7 @@ button:disabled {
     z-index: 100;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     animation: slideIn 0.3s ease-out;
+    transition: opacity 0.3s, transform 0.3s;
 }
 
 .notification-success {
@@ -222,4 +155,16 @@ button:disabled {
 @keyframes slideIn {
     from { transform: translateX(100%); opacity: 0; }
     to { transform: translateX(0); opacity: 1; }
+}
+
+/* 响应式调整 */
+@media (max-width: 640px) {
+    #upload-form {
+        padding: 1rem;
+    }
+    
+    .tag {
+        font-size: 0.75rem;
+        padding: 0.125rem 0.375rem;
+    }
 } 

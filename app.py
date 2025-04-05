@@ -27,7 +27,7 @@ def videoinfo(id):
     # 当访问到形如/video/hjm{id}时，会返回videoinfo.html，同时将{id}作为参数传递给前端
     return render_template('videoinfo.html', video_id=id)
 
-@app.route('/user/<id>')
+@app.route('/user/<id>')    
 def userinfo(id):
     return render_template('userinfo.html', user_id=id)
 
@@ -39,6 +39,10 @@ def edit():
 def search():
     #这是搜索界面，可能将访问到如/search?key={key},返回search.html
     return render_template('search.html', video_id=id)
+
+@app.route('/upload')
+def upload():   
+    return render_template('uploadvideo.html')
 
 if __name__ == '__main__':
     app.run(debug=True) 

@@ -2,11 +2,7 @@
  * uploadvideo.js - 视频上传页面交互逻辑
  */
 
-// 页面元素 - 步骤指示器
-const uploadSteps = document.querySelectorAll('.upload-step');
-const uploadStepContents = document.querySelectorAll('.upload-step-content');
-
-// 页面元素 - 步骤1：视频上传
+// 页面元素 - 视频上传
 const videoDropArea = document.getElementById('video-drop-area');
 const videoFileInput = document.getElementById('video-file');
 const videoPreviewContainer = document.getElementById('video-preview-container');
@@ -14,14 +10,18 @@ const videoPreview = document.getElementById('video-preview');
 const videoLoading = document.getElementById('video-loading');
 const videoFileName = document.getElementById('video-file-name');
 const changeVideoButton = document.getElementById('change-video');
-const step1NextButton = document.getElementById('step1-next');
 
-// 页面元素 - 步骤2：视频信息
+// 页面元素 - 视频信息
 const videoTitleInput = document.getElementById('video-title');
 const titleCounter = document.getElementById('title-counter');
 const titleError = document.getElementById('title-error');
 const videoDescriptionInput = document.getElementById('video-description');
 const descriptionCounter = document.getElementById('description-counter');
+const videoCategorySelect = document.getElementById('video-category');
+const tagInput = document.getElementById('tag-input');
+const tagsContainer = document.getElementById('tags-container');
+
+// 页面元素 - 封面
 const autoCoverRadio = document.getElementById('auto-cover');
 const customCoverRadio = document.getElementById('custom-cover');
 const autoThumbnails = document.getElementById('auto-thumbnails');
@@ -29,13 +29,10 @@ const customUpload = document.getElementById('custom-upload');
 const coverDropArea = document.getElementById('cover-drop-area');
 const coverFileInput = document.getElementById('cover-file');
 const coverPreview = document.getElementById('cover-preview');
-const videoCategorySelect = document.getElementById('video-category');
-const tagInput = document.getElementById('tag-input');
-const tagsContainer = document.getElementById('tags-container');
-const step2PrevButton = document.getElementById('step2-prev');
-const step2NextButton = document.getElementById('step2-next');
 
-// 页面元素 - 步骤3：上传状态
+// 页面元素 - 上传按钮和状态
+const uploadButton = document.getElementById('upload-button');
+const uploadStatus = document.getElementById('upload-status');
 const uploadingState = document.getElementById('uploading-state');
 const uploadSuccess = document.getElementById('upload-success');
 const uploadError = document.getElementById('upload-error');
@@ -53,7 +50,6 @@ const cancelCropButton = document.getElementById('cancel-crop');
 const confirmCropButton = document.getElementById('confirm-crop');
 
 // 状态变量
-let currentStep = 1;
 let videoFile = null;
 let videoUrl = null;
 let coverSource = 'auto'; // 'auto' 或 'custom'
@@ -68,20 +64,22 @@ let uploadedVideoId = null;
 /**
  * 初始化页面
  */
-async function init() {
+function init() {
     // 注册事件监听器
     registerEventListeners();
+    
+    // 验证表单状态，初始化时禁用上传按钮
+    validateForm();
 }
 
 /**
  * 注册所有事件监听器
  */
 function registerEventListeners() {
-    // 步骤1：视频上传
+    // 视频拖放和选择
     videoDropArea.addEventListener('click', () => videoFileInput.click());
     videoFileInput.addEventListener('change', handleVideoFileSelect);
     
-    // 拖放功能
     videoDropArea.addEventListener('dragover', e => {
         e.preventDefault();
         videoDropArea.classList.add('drag-over');
@@ -104,11 +102,7 @@ function registerEventListeners() {
         videoFileInput.click();
     });
     
-    step1NextButton.addEventListener('click', () => {
-        goToStep(2);
-    });
-    
-    // 步骤2：视频信息
+    // 视频信息输入
     videoTitleInput.addEventListener('input', () => {
         const length = videoTitleInput.value.length;
         titleCounter.textContent = `${length}/50`;
@@ -116,11 +110,11 @@ function registerEventListeners() {
         if (length < 5) {
             titleError.textContent = '标题至少需要5个字符';
             titleError.classList.remove('hidden');
-            step2NextButton.disabled = true;
         } else {
             titleError.classList.add('hidden');
-            validateStep2Form();
         }
+        
+        validateForm();
     });
     
     videoDescriptionInput.addEventListener('input', () => {
@@ -139,6 +133,8 @@ function registerEventListeners() {
             if (thumbnails.length > 0 && selectedThumbnailIndex >= 0) {
                 coverPreview.src = thumbnails[selectedThumbnailIndex];
             }
+            
+            validateForm();
         }
     });
     
@@ -152,8 +148,10 @@ function registerEventListeners() {
             if (customCoverUrl) {
                 coverPreview.src = customCoverUrl;
             } else {
-                coverPreview.src = 'img/default-cover.png';
+                coverPreview.src = '/static/img/default-cover.png';
             }
+            
+            validateForm();
         }
     });
     
@@ -161,7 +159,6 @@ function registerEventListeners() {
     coverDropArea.addEventListener('click', () => coverFileInput.click());
     coverFileInput.addEventListener('change', handleCoverFileSelect);
     
-    // 拖放功能
     coverDropArea.addEventListener('dragover', e => {
         e.preventDefault();
         coverDropArea.classList.add('drag-over');
@@ -179,9 +176,8 @@ function registerEventListeners() {
             handleCoverFile(e.dataTransfer.files[0]);
         }
     });
-    
     // 标签输入
-    tagInput.addEventListener('keydown', e => {
+    tagInput?.addEventListener('keydown', e => {
         if (e.key === 'Enter' && tagInput.value.trim()) {
             e.preventDefault();
             addTag(tagInput.value.trim());
@@ -189,20 +185,16 @@ function registerEventListeners() {
         }
     });
     
-    // 步骤控制
-    step2PrevButton.addEventListener('click', () => {
-        goToStep(1);
-    });
+    // 上传按钮
+    uploadButton.addEventListener('click', startUpload);
     
-    step2NextButton.addEventListener('click', () => {
-        goToStep(3);
-        startUpload();
-    });
-    
-    // 上传重试
+    // 重试按钮
     retryUploadButton.addEventListener('click', () => {
+        // 隐藏错误状态，显示上传状态
         uploadError.classList.add('hidden');
         uploadingState.classList.remove('hidden');
+        
+        // 重新开始上传
         startUpload();
     });
     
@@ -265,8 +257,8 @@ function handleVideoFile(file) {
         // 生成视频缩略图
         generateThumbnails();
         
-        // 允许进入下一步
-        step1NextButton.disabled = false;
+        // 验证表单
+        validateForm();
     };
     
     videoPreview.onerror = () => {
@@ -364,7 +356,7 @@ function createThumbnails() {
                 autoCoverRadio.checked = true;
                 coverSource = 'auto';
                 
-                validateStep2Form();
+                validateForm();
             });
             
             // 自动选择第一个缩略图
@@ -375,12 +367,9 @@ function createThumbnails() {
             // 移除事件监听
             videoPreview.removeEventListener('seeked', createThumb);
         }, { once: true });
-    }
-    
-    // 添加缩略图到容器
-    const thumbDivs = Array.from(autoThumbnails.children);
-    for (let i = 0; i < thumbDivs.length; i++) {
-        autoThumbnails.replaceChild(thumbDivs[i], autoThumbnails.children[i]);
+        
+        // 添加到容器
+        autoThumbnails.appendChild(thumbDiv);
     }
 }
 
@@ -500,7 +489,7 @@ function applyCrop() {
     customCoverRadio.checked = true;
     coverSource = 'custom';
     
-    validateStep2Form();
+    validateForm();
 }
 
 /**
@@ -552,62 +541,40 @@ function addTag(tagText) {
 }
 
 /**
- * 验证步骤2表单
+ * 验证表单
  */
-function validateStep2Form() {
-    // 验证标题
-    const titleValid = videoTitleInput.value.length >= 5;
+function validateForm() {
+    // 检查是否有视频
+    const hasVideo = videoFile !== null;
     
-    // 验证封面
-    let coverValid = false;
+    // 检查标题
+    const hasValidTitle = videoTitleInput.value.trim().length >= 5;
+    
+    // 检查封面
+    let hasValidCover = false;
     if (coverSource === 'auto') {
-        coverValid = selectedThumbnailIndex >= 0;
+        hasValidCover = selectedThumbnailIndex >= 0;
     } else {
-        coverValid = customCoverUrl !== null;
+        hasValidCover = customCoverUrl !== null;
     }
     
-    // 更新下一步按钮状态
-    step2NextButton.disabled = !(titleValid && coverValid);
-}
-
-/**
- * 切换到指定步骤
- * @param {number} step - 步骤编号
- */
-function goToStep(step) {
-    currentStep = step;
-    
-    // 更新步骤指示器状态
-    uploadSteps.forEach((stepEl, index) => {
-        const stepNum = index + 1;
-        
-        if (stepNum < currentStep) {
-            stepEl.classList.add('completed');
-            stepEl.classList.remove('active');
-        } else if (stepNum === currentStep) {
-            stepEl.classList.add('active');
-            stepEl.classList.remove('completed');
-        } else {
-            stepEl.classList.remove('active', 'completed');
-        }
-    });
-    
-    // 更新步骤内容可见性
-    uploadStepContents.forEach((contentEl, index) => {
-        const stepNum = index + 1;
-        
-        if (stepNum === currentStep) {
-            contentEl.classList.add('active');
-        } else {
-            contentEl.classList.remove('active');
-        }
-    });
+    // 只有满足所有条件才启用上传按钮
+    uploadButton.disabled = !(hasVideo && hasValidTitle && hasValidCover);
 }
 
 /**
  * 开始上传过程
  */
 async function startUpload() {
+    // 禁用上传按钮，防止重复点击
+    uploadButton.disabled = true;
+    
+    // 显示上传状态
+    uploadStatus.classList.remove('hidden');
+    uploadingState.classList.remove('hidden');
+    uploadSuccess.classList.add('hidden');
+    uploadError.classList.add('hidden');
+    
     try {
         // 准备封面数据
         let coverData;
@@ -662,6 +629,9 @@ async function startUpload() {
         uploadingState.classList.add('hidden');
         uploadError.classList.remove('hidden');
         errorMessage.textContent = error.message || '上传过程中发生错误，请重试';
+        
+        // 重新启用上传按钮
+        uploadButton.disabled = false;
     }
 }
 

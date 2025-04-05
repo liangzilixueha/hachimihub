@@ -284,3 +284,108 @@ def searchVideos():
     except Exception as e:
         logging.error(f"搜索视频失败: {str(e)}")
         return jsonify({'code': 500, 'message': f'服务器错误: {str(e)}'}), 500
+    
+@video_bp.route('/video/hotVideos', methods=['GET'])
+def hotVideos():
+    try:
+        # 获取参数，限制最多返回10个视频
+        limit = min(int(request.args.get('limit', 10)), 10)
+        
+        # 查询近七日播放量最高的视频
+        sql = """
+            SELECT v.id, v.title, v.bio, v.video_url, v.cover_url, v.duration, v.create_time, 
+                   v.love, v.watch, v.collect, v.upload_user, u.username, u.avatar_url
+            FROM videoinfo v
+            LEFT JOIN userinfo u ON v.upload_user = u.id
+            WHERE v.isdel = 0 AND v.ischeck = 1
+            AND v.create_time >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+            ORDER BY v.watch DESC
+            LIMIT %s
+        """
+        
+        videos = db.fetchAll(sql, (limit,))
+        
+        # 格式化视频数据
+        formatted_videos = []
+        for video in videos:
+            formatted_videos.append({
+                'id': video['id'],
+                'title': video['title'],
+                'description': video['bio'],
+                'videoUrl': video['video_url'],
+                'coverUrl': video['cover_url'],
+                'duration': video['duration'],
+                'createTime': video['create_time'].strftime('%Y-%m-%d %H:%M:%S'),
+                'likeCount': video['love'],
+                'viewCount': video['watch'],
+                'collectCount': video['collect'],
+                'uploader': {
+                    'userId': video['upload_user'],
+                    'username': video['username'],
+                    'avatar': video['avatar_url']
+                }
+            })
+        
+        return jsonify({
+            'code': 200,
+            'message': '获取热门视频成功',
+            'data': formatted_videos
+        }), 200
+        
+    except Exception as e:
+        logging.error(f"获取热门视频失败: {str(e)}")
+        return jsonify({'code': 500, 'message': f'服务器错误: {str(e)}'}), 500
+    
+@video_bp.route('/video/randomVideos', methods=['GET'])
+def randomVideos():
+    try:
+        # 获取参数，限制最多返回10个视频
+        limit = min(int(request.args.get('limit', 10)), 10)
+        
+        # 查询近七日内的随机视频
+        sql = """
+            SELECT v.id, v.title, v.bio, v.video_url, v.cover_url, v.duration, v.create_time, 
+                   v.love, v.watch, v.collect, v.upload_user, u.username, u.avatar_url
+            FROM videoinfo v
+            LEFT JOIN userinfo u ON v.upload_user = u.id
+            WHERE v.isdel = 0 AND v.ischeck = 1
+            AND v.create_time >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+            ORDER BY RAND()
+            LIMIT %s
+        """
+        
+        videos = db.fetchAll(sql, (limit,))
+        
+        # 格式化视频数据
+        formatted_videos = []
+        for video in videos:
+            formatted_videos.append({
+                'id': video['id'],
+                'title': video['title'],
+                'description': video['bio'],
+                'videoUrl': video['video_url'],
+                'coverUrl': video['cover_url'],
+                'duration': video['duration'],
+                'createTime': video['create_time'].strftime('%Y-%m-%d %H:%M:%S'),
+                'likeCount': video['love'],
+                'viewCount': video['watch'],
+                'collectCount': video['collect'],
+                'uploader': {
+                    'userId': video['upload_user'],
+                    'username': video['username'],
+                    'avatar': video['avatar_url']
+                }
+            })
+        
+        return jsonify({
+            'success': True,
+            'videos': formatted_videos,
+            'message': '获取随机视频成功'
+        })
+        
+    except Exception as e:
+        logging.error(f"获取随机视频失败: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': f'服务器错误: {str(e)}'
+        }), 500

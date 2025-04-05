@@ -377,5 +377,93 @@ window.videoAPI = {
                 error: '网络请求失败，请检查网络连接'
             };
         }
+    },
+
+    async hotVideos(limit = 10){
+        try {
+            // 确保limit不超过10
+            limit = Math.min(limit, 10);
+            
+            // 构建查询参数
+            const queryParams = new URLSearchParams({
+                limit: limit
+            });
+            
+            // 发送GET请求
+            const response = await fetch(`/api/video/hotVideos?${queryParams.toString()}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            // 解析响应
+            const result = await response.json();
+            
+            // 检查响应状态
+            if (result.code === 200) {
+                return {
+                    success: true,
+                    videos: result.data || []
+                };
+            } else {
+                return {
+                    success: false,
+                    error: result.message || '获取热门视频失败'
+                };
+            }
+        } catch (error) {
+            console.error('获取热门视频请求失败:', error);
+            return {
+                success: false,
+                error: '网络请求失败，请检查网络连接'
+            };
+        }
+    },
+
+    /**
+     * 获取随机视频
+     * @param {number} limit - 获取视频的数量，最大10
+     * @returns {Promise<Object>} 包含随机视频列表的结果对象
+     */
+    async randomVideos(limit = 10) {
+        try {
+            // 限制最多返回10个视频
+            limit = Math.min(limit, 10);
+            
+            // 构建查询参数
+            const params = new URLSearchParams();
+            params.append('limit', limit);
+            
+            // 发送请求
+            const response = await fetch(`/api/video/randomVideos?${params.toString()}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            // 解析响应
+            const data = await response.json();
+            
+            // 检查响应状态
+            if (response.ok && data.success) {
+                return {
+                    success: true,
+                    videos: data.videos
+                };
+            } else {
+                return {
+                    success: false,
+                    error: data.error || '获取随机视频失败'
+                };
+            }
+        } catch (error) {
+            console.error('获取随机视频错误:', error);
+            return {
+                success: false,
+                error: error.message || '请求随机视频时发生错误'
+            };
+        }
     }
-}; 
+};
